@@ -50,6 +50,7 @@ CREATE TABLE Devis (
                         montantEstime DOUBLE PRECISION,
                         dateEmission DATE,
                         accepte BOOLEAN,
+                        dateValidate DATE,
                         project_id INT,
                         FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE
 );
