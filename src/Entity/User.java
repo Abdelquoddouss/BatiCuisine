@@ -11,10 +11,9 @@ public class User {
     private boolean estProfessional ;
   private List<Project> Projects ;
 
-    public User() {
-    }
 
-    public User(int id, String nom, String address, String telephone, boolean estProfessional, List<Project> Projects) {
+
+    public User(int id, String nom, String address, String telephone, boolean estProfessional) {
         this.id = id;
         this.nom = nom;
         this.address = address;
