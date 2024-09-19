@@ -30,7 +30,6 @@ public class UserRepository {
         }
     }
 
-
     public User findById(int id) {
         User user = null;
         try {
@@ -51,7 +50,6 @@ public class UserRepository {
         return user;
     }
 
-
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         try {
@@ -71,7 +69,6 @@ public class UserRepository {
         }
         return users;
     }
-
 
     public void update(User user) {
         try {
