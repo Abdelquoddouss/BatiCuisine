@@ -10,5 +10,6 @@ public interface UserRepositoryInter {
     List<User> findAll();
     void update(User user);
     void delete(int id);
+    User findByName(String nom);
 
 }

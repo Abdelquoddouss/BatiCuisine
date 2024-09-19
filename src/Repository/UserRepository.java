@@ -96,5 +96,25 @@ public class UserRepository {
         }
     }
 
+    public User findByName(String nom) {
+        User user = null;
+        try {
+            String sql = "SELECT * FROM clients WHERE nom = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, nom);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String address = resultSet.getString("address");
+                String telephone = resultSet.getString("telephone");
+                boolean estProfessional = resultSet.getBoolean("estProfessional");
+                user = new User(id, nom, address, telephone, estProfessional);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
 
 }

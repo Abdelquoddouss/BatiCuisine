@@ -74,6 +74,17 @@ public class User {
         this.Projects = Projects;
     }
 
+    @Override
+    public String toString() {
+        return "User:" +
+                "\n id=" + id +
+                ", nom='" + nom + '\'' +
+                ", address='" + address + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", estProfessional=" + estProfessional +
+                ", Projects=" + Projects +
+                '}';
+    }
 
 
 
