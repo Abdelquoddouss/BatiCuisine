@@ -105,7 +105,7 @@ public class CrudUserMenu {
                     if (users.isEmpty()) {
                         System.out.println("Aucun utilisateur trouvé.");
                     } else {
-                        // Affichage des en-têtes de colonnes
+
                         System.out.printf("%-5s %-20s %-20s %-15s %-15s%n", "ID", "Nom", "Adresse", "Téléphone", "Professionnel");
                         System.out.println("-------------------------------------------------------------------------------");
                         for (User u : users) {
