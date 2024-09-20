@@ -21,7 +21,7 @@ public class CrudUserMenu {
         Connection connection = DatabaseConnection.getConnection();
 
         UserRepository userRepository = new UserRepository(connection);
-        ProjectRepository projectRepository = new ProjectRepository(connection);
+        ProjectRepository projectRepository = new ProjectRepository(connection, userRepository);
         userService = new UserService(userRepository);
         ProjectService projectService = new ProjectService(projectRepository);
 

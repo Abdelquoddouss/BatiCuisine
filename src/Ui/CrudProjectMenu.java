@@ -14,8 +14,10 @@ import java.util.Scanner;
 
 public class CrudProjectMenu {
 
-    private static UserService userService ;
-    private static ProjectService projectService;
+
+    private static UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+    private static UserService userService = new UserService(new UserRepository(DatabaseConnection.getConnection()));
+    private static ProjectService projectService = new ProjectService(new ProjectRepository(DatabaseConnection.getConnection(), userRepository));
     private static Scanner scanner = new Scanner(System.in);
 
     public CrudProjectMenu(UserService userService, ProjectService projectService) {
@@ -67,8 +69,9 @@ public class CrudProjectMenu {
         System.out.print("Choisissez une option : ");
     }
 
-    // Créer un nouveau projet
     private static void creerNouveauProjet() {
+        User client = null;
+
         System.out.println("\n--- Recherche de client ---");
         System.out.println("1. Chercher un client existant");
         System.out.println("2. Ajouter un nouveau client");
@@ -77,14 +80,20 @@ public class CrudProjectMenu {
         scanner.nextLine(); // Consommer la nouvelle ligne
 
         if (choixClient == 1) {
-            rechercherClientExistant();
+            client = rechercherClientExistant();
         } else if (choixClient == 2) {
-            ajouterNouveauClient();
+            client = ajouterNouveauClient();
         } else {
             System.out.println("\nChoix invalide. Retour au menu principal.");
             return;
         }
 
+        if (client == null) {
+            System.out.println("\nAucun client sélectionné. Retour au menu principal.");
+            return;
+        }
+
+        // Création du projet
         System.out.println("\n--- Création d'un Nouveau Projet ---");
         System.out.print("Entrez le nom du projet : ");
         String nomProjet = scanner.nextLine();
@@ -93,31 +102,40 @@ public class CrudProjectMenu {
         double surfaceCuisine = scanner.nextDouble();
         scanner.nextLine(); // Consommer la nouvelle ligne
 
-        System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé avec succès !");
+        System.out.print("Entrez la marge bénéficiaire (en %) : ");
+        double margeBeneficiaire = scanner.nextDouble();
+        scanner.nextLine();
+
+
+        // Créer un nouvel objet Project
+        Project nouveauProjet = new Project(nomProjet, margeBeneficiaire, surfaceCuisine, EtatProject.EN_COURS, client);
+
+        // Sauvegarder dans la base de données
+        projectService.addProject(nouveauProjet);
+
+        System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
     }
 
-    // Rechercher un client existant
-    private static void rechercherClientExistant() {
+    private static User rechercherClientExistant() {
         System.out.println("\n--- Recherche de client existant ---");
         System.out.print("Entrez le nom du client : ");
-        String nomClient = scanner.nextLine();
-
-        // Ici, vous pouvez ajouter la logique pour rechercher dans une base de données réelle
-        System.out.println("Client trouvé !");
-        System.out.println("Nom : " + nomClient);
-        System.out.println("Adresse : 12 Rue des Fleurs, Paris");
-        System.out.println("Numéro de téléphone : 06 12345678");
-
-        System.out.print("Souhaitez-vous continuer avec ce client ? (y/n) : ");
-        String continuer = scanner.nextLine();
-        if (continuer.equalsIgnoreCase("n")) {
-            System.out.println("\nRetour au menu principal.");
-            return;
+        String nomUtilisateur = scanner.nextLine();
+        User utilisateurRecupere = userService.getUserByName(nomUtilisateur);
+        if (utilisateurRecupere != null) {
+            System.out.println("Détails de l'utilisateur : ");
+            System.out.printf("%-15s : %s%n", "ID", utilisateurRecupere.getId());
+            System.out.printf("%-15s : %s%n", "Nom", utilisateurRecupere.getNom());
+            System.out.printf("%-15s : %s%n", "Adresse", utilisateurRecupere.getAddress());
+            System.out.printf("%-15s : %s%n", "Téléphone", utilisateurRecupere.getTelephone());
+            System.out.printf("%-15s : %s%n", "Professionnel", utilisateurRecupere.isEstProfessional() ? "Oui" : "Non");
+        } else {
+            System.out.println("Utilisateur non trouvé !");
         }
+
+        return utilisateurRecupere;
     }
 
-    // Ajouter un nouveau client
-    private static void ajouterNouveauClient() {
+    private static User ajouterNouveauClient() {
         System.out.println("\n--- Ajout d'un nouveau client ---");
         System.out.print("Entrez le nom du client : ");
         String nomClient = scanner.nextLine();
@@ -128,8 +146,17 @@ public class CrudProjectMenu {
         System.out.print("Entrez le numéro de téléphone du client : ");
         String telephoneClient = scanner.nextLine();
 
-        System.out.println("\nClient '" + nomClient + "' ajouté avec succès !");
+        System.out.println("Le client '" + nomClient + "' a été ajouté.");
+
+        // Créer un nouvel objet User
+        User client = new User(0, nomClient, adresseClient, telephoneClient, false);
+
+        // Sauvegarder dans la base de données
+        userService.addUser(client);
+
+        return client;
     }
+
 
     // Afficher les projets existants
     private static void afficherProjetsExistants() {

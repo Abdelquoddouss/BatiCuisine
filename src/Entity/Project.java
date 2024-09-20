@@ -14,8 +14,7 @@ public class Project {
     public Project() {
     }
 
-    public Project(int id, String NomProject, double margeBeneficiaire, double couTotal, EtatProject etatProject, User user) {
-        this.id = id;
+    public Project(String NomProject, double margeBeneficiaire, double couTotal, EtatProject etatProject, User user) {
         this.NomProject = NomProject;
         this.margeBeneficiaire = margeBeneficiaire;
         this.couTotal = couTotal;

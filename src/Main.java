@@ -11,13 +11,13 @@ import java.sql.Connection;
 public class Main {
     public static void main(String[] args) {
 
-        Connection connection = DatabaseConnection.getConnection();
-        UserRepository userRepository = new UserRepository(connection);
-        ProjectRepository projectRepository = new ProjectRepository(connection,userRepository);
-        ProjectService projectService = new ProjectService(projectRepository);
-        UserService userService = new UserService(userRepository);
+//        Connection connection = DatabaseConnection.getConnection();
+//        UserRepository userRepository = new UserRepository(connection);
+//        ProjectRepository projectRepository = new ProjectRepository(connection,userRepository);
+//        ProjectService projectService = new ProjectService(projectRepository);
+//        UserService userService = new UserService(userRepository);
 
 
-        }
+//        }
     }
 }

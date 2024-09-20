@@ -20,7 +20,7 @@ public class ProjectRepository {
     }
 
     public void createProject(Project project) {
-        String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?::etatproject, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, project.getNomProject());
             preparedStatement.setDouble(2, project.getMargeBeneficiaire());
@@ -60,7 +60,7 @@ public class ProjectRepository {
         // Use injected userService to get the User object
 
         User user = userRepository.findById(userId);
-        return new Project(id, name, profitMargin, totalCost, status, user);
+        return new Project(name, profitMargin, totalCost, status, user);
     }
 
     public List<Project> getAllProjects() {
