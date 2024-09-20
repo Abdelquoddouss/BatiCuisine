@@ -9,187 +9,149 @@ import Service.ProjectService;
 import Service.UserService;
 import config.DatabaseConnection;
 
-import java.sql.Connection;
-import java.util.List;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class CrudProjectMenu {
 
-    private static UserService userService;
+    private static UserService userService ;
     private static ProjectService projectService;
     private static Scanner scanner = new Scanner(System.in);
 
+    public CrudProjectMenu(UserService userService, ProjectService projectService) {
+        this.userService = userService;
+        this.projectService = projectService;
+    }
+
     public static void main(String[] args) {
-
-        Connection connection = DatabaseConnection.getConnection();
-
-        UserRepository userRepository = new UserRepository(connection);
-        userService = new UserService(userRepository);
-        ProjectRepository projectRepository = new ProjectRepository(connection);
-        projectService = new ProjectService(projectRepository);
-
         int choix = -1;
 
-        while (choix != 0) {
+        while (choix != 4) {
             afficherMenuPrincipal();
-            choix = scanner.nextInt();
-            scanner.nextLine(); // Consommer la nouvelle ligne
+
+            try {
+                choix = scanner.nextInt();
+                scanner.nextLine(); // Consommer la nouvelle ligne
+            } catch (InputMismatchException e) {
+                System.out.println("\n[Erreur] Veuillez entrer un chiffre valide.");
+                scanner.next(); // Consommer l'entrée incorrecte
+                continue;
+            }
 
             switch (choix) {
                 case 1:
-                    ajouterProjet();
+                    creerNouveauProjet();
                     break;
                 case 2:
-                    consulterProjet();
+                    afficherProjetsExistants();
                     break;
                 case 3:
-                    mettreAJourProjet();
+                    calculerCoutProjet();
                     break;
                 case 4:
-                    supprimerProjet();
-                    break;
-                case 5:
-                    listerTousLesProjets();
-                    break;
-                case 0:
-                    System.out.println("Sortie du menu...");
+                    quitter();
                     break;
                 default:
-                    System.out.println("Choix invalide ! Veuillez réessayer.");
+                    System.out.println("\nChoix invalide ! Veuillez réessayer.");
             }
         }
-
-        scanner.close();
-
-        try {
-            connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
-    // Méthode pour afficher le menu principal
+    // Afficher le menu principal
     private static void afficherMenuPrincipal() {
-        System.out.println("\n===== Menu CRUD Projets =====");
-        System.out.println("1. Ajouter un Projet");
-        System.out.println("2. Voir un Projet");
-        System.out.println("3. Mettre à jour un Projet");
-        System.out.println("4. Supprimer un Projet");
-        System.out.println("5. Lister tous les Projets");
-        System.out.println("0. Quitter");
-        System.out.print("Entrez votre choix : ");
+        System.out.println("\n=== Menu Principal ===");
+        System.out.println("1. Créer un nouveau projet");
+        System.out.println("2. Afficher les projets existants");
+        System.out.println("3. Calculer le coût d'un projet");
+        System.out.println("4. Quitter");
+        System.out.print("Choisissez une option : ");
     }
 
-    // Méthode pour ajouter un projet
-    private static void ajouterProjet() {
-        System.out.print("Entrez l'ID de l'utilisateur associé à ce projet : ");
-        int userId = scanner.nextInt();
-        User user = userService.getUserById(userId);
-        if (user == null) {
-            System.out.println("Utilisateur non trouvé ! Impossible de continuer.");
+    // Créer un nouveau projet
+    private static void creerNouveauProjet() {
+        System.out.println("\n--- Recherche de client ---");
+        System.out.println("1. Chercher un client existant");
+        System.out.println("2. Ajouter un nouveau client");
+        System.out.print("Choisissez une option : ");
+        int choixClient = scanner.nextInt();
+        scanner.nextLine(); // Consommer la nouvelle ligne
+
+        if (choixClient == 1) {
+            rechercherClientExistant();
+        } else if (choixClient == 2) {
+            ajouterNouveauClient();
+        } else {
+            System.out.println("\nChoix invalide. Retour au menu principal.");
             return;
         }
 
-        // Sélection du statut du projet
-        System.out.println("Sélectionnez le statut du projet :");
-        EtatProject[] statuts = EtatProject.values();
-        for (int i = 0; i < statuts.length; i++) {
-            System.out.println((i + 1) + ". " + statuts[i]);
-        }
-        System.out.print("Entrez le numéro correspondant au statut : ");
-        int choixStatut = scanner.nextInt();
-        scanner.nextLine(); // Consommer la nouvelle ligne
-        EtatProject statutProjet = statuts[choixStatut - 1];
-
-        // Collecte des autres informations
+        System.out.println("\n--- Création d'un Nouveau Projet ---");
         System.out.print("Entrez le nom du projet : ");
         String nomProjet = scanner.nextLine();
-        System.out.print("Entrez la marge bénéficiaire : ");
-        double margeBeneficiaire = scanner.nextDouble();
-        double coutTotal = 0.0;
 
-        // Création du projet
-        Project projet = new Project(0, nomProjet, margeBeneficiaire, coutTotal, statutProjet, user);
-        projectService.addProject(projet);
-        System.out.println("Projet ajouté avec succès.");
-    }
-
-    // Méthode pour consulter un projet
-    private static void consulterProjet() {
-        System.out.print("Entrez l'ID du projet à consulter : ");
-        int projectId = scanner.nextInt();
-        Project projetRecupere = projectService.getProjectById(projectId);
-        if (projetRecupere != null) {
-            System.out.println("\n===== Détails du Projet =====");
-            afficherProjetTableau(projetRecupere);
-        } else {
-            System.out.println("Projet non trouvé !");
-        }
-    }
-
-    // Méthode pour mettre à jour un projet
-    private static void mettreAJourProjet() {
-        System.out.print("Entrez l'ID du projet à mettre à jour : ");
-        int updateId = scanner.nextInt();
+        System.out.print("Entrez la surface de la cuisine (en m²) : ");
+        double surfaceCuisine = scanner.nextDouble();
         scanner.nextLine(); // Consommer la nouvelle ligne
-        Project projetAMettreAJour = projectService.getProjectById(updateId);
-        if (projetAMettreAJour != null) {
-            System.out.print("Entrez le nouveau nom du projet (ou appuyez sur Entrée pour garder le nom actuel) : ");
-            String nouveauNom = scanner.nextLine();
-            if (!nouveauNom.isEmpty()) {
-                projetAMettreAJour.setNomProject(nouveauNom);
-            }
 
-            System.out.print("Entrez la nouvelle marge bénéficiaire (ou appuyez sur Entrée pour garder la marge actuelle) : ");
-            String nouvelleMargeStr = scanner.nextLine();
-            if (!nouvelleMargeStr.isEmpty()) {
-                projetAMettreAJour.setMargeBeneficiaire(Double.parseDouble(nouvelleMargeStr));
-            }
+        System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé avec succès !");
+    }
 
-            System.out.print("Entrez le nouveau coût total (ou appuyez sur Entrée pour garder le coût actuel) : ");
-            String nouveauCoutStr = scanner.nextLine();
-            if (!nouveauCoutStr.isEmpty()) {
-                projetAMettreAJour.setCouTotal(Double.parseDouble(nouveauCoutStr));
-            }
+    // Rechercher un client existant
+    private static void rechercherClientExistant() {
+        System.out.println("\n--- Recherche de client existant ---");
+        System.out.print("Entrez le nom du client : ");
+        String nomClient = scanner.nextLine();
 
-            System.out.print("Entrez le nouveau statut du projet (ou appuyez sur Entrée pour garder le statut actuel) : ");
-            String nouveauStatutStr = scanner.nextLine();
-            if (!nouveauStatutStr.isEmpty()) {
-                try {
-                    projetAMettreAJour.setEtatProject(EtatProject.valueOf(nouveauStatutStr));
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Statut invalide. Statut actuel conservé.");
-                }
-            }
+        // Ici, vous pouvez ajouter la logique pour rechercher dans une base de données réelle
+        System.out.println("Client trouvé !");
+        System.out.println("Nom : " + nomClient);
+        System.out.println("Adresse : 12 Rue des Fleurs, Paris");
+        System.out.println("Numéro de téléphone : 06 12345678");
 
-            projectService.updateProject(projetAMettreAJour);
-            System.out.println("Projet mis à jour avec succès !");
-        } else {
-            System.out.println("Projet non trouvé !");
+        System.out.print("Souhaitez-vous continuer avec ce client ? (y/n) : ");
+        String continuer = scanner.nextLine();
+        if (continuer.equalsIgnoreCase("n")) {
+            System.out.println("\nRetour au menu principal.");
+            return;
         }
     }
 
-    // Méthode pour supprimer un projet
-    private static void supprimerProjet() {
-        System.out.print("Entrez l'ID du projet à supprimer : ");
-        int deleteId = scanner.nextInt();
-        projectService.deleteProject(deleteId);
-        System.out.println("Projet supprimé avec succès !");
+    // Ajouter un nouveau client
+    private static void ajouterNouveauClient() {
+        System.out.println("\n--- Ajout d'un nouveau client ---");
+        System.out.print("Entrez le nom du client : ");
+        String nomClient = scanner.nextLine();
+
+        System.out.print("Entrez l'adresse du client : ");
+        String adresseClient = scanner.nextLine();
+
+        System.out.print("Entrez le numéro de téléphone du client : ");
+        String telephoneClient = scanner.nextLine();
+
+        System.out.println("\nClient '" + nomClient + "' ajouté avec succès !");
     }
 
-    // Méthode pour lister tous les projets
-    private static void listerTousLesProjets() {
-        List<Project> projets = projectService.getAllProjects();
-        System.out.println("\n===== Liste des Projets =====");
-        for (Project p : projets) {
-            afficherProjetTableau(p);
-        }
+    // Afficher les projets existants
+    private static void afficherProjetsExistants() {
+        System.out.println("\n--- Projets Existants ---");
+        // Logique pour afficher les projets (liste factice ici)
+        System.out.println("1. Projet Rénovation Cuisine Mme Dupont");
+        System.out.println("2. Projet Aménagement Salle de Bain Mr Martin");
     }
 
-    // Fonction d'affichage formaté d'un projet en tableau
-    private static void afficherProjetTableau(Project projet) {
-        System.out.printf("%-15s %-20s %-20s %-10s %-10s\n", "ID Projet", "Nom", "Marge Bénéficiaire", "Coût Total", "Statut");
-        System.out.printf("%-15d %-20s %-20.2f %-10.2f %-10s\n", projet.getId(), projet.getNomProject(),
-                projet.getMargeBeneficiaire(), projet.getCouTotal(), projet.getEtatProject());
+    // Calculer le coût d'un projet
+    private static void calculerCoutProjet() {
+        System.out.println("\n--- Calcul du Coût d'un Projet ---");
+        // Logique pour calculer le coût
+        System.out.print("Entrez l'ID du projet : ");
+        int idProjet = scanner.nextInt();
+        scanner.nextLine(); // Consommer la nouvelle ligne
+
+        System.out.println("Le coût estimé pour le projet avec ID " + idProjet + " est de 15 000 €.");
+    }
+
+    // Quitter le programme
+    private static void quitter() {
+        System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
     }
 }

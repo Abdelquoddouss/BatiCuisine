@@ -12,32 +12,28 @@ import java.util.List;
 public class ProjectRepository {
 
     private Connection connection;
-    private UserService userService;
+    private UserRepository userRepository;
 
-    public ProjectRepository(Connection connection) {
+    public ProjectRepository(Connection connection , UserRepository userRepository) {
         this.connection = connection;
-        this.userService = userService;
+        this.userRepository =  userRepository;
     }
 
     public void createProject(Project project) {
         String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?, ?)";
-
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, project.getNomProject());
             preparedStatement.setDouble(2, project.getMargeBeneficiaire());
-
-            if(project.getCouTotal() == 0) {
-                preparedStatement.setNull(3, java.sql.Types.DOUBLE);
-            } else {
-                preparedStatement.setDouble(3, project.getCouTotal());
-            }
-            preparedStatement.setObject(4, project.getEtatProject().name());
+            preparedStatement.setDouble(3, project.getCouTotal());
+            preparedStatement.setString(4, project.getEtatProject().name());
+            preparedStatement.setInt(5, project.getUser().getId());
+            preparedStatement.executeUpdate();
+            System.out.println("Le projet a été inséré avec succès !");
         } catch (SQLException e) {
+            System.out.println("Erreur lors de l'insertion du projet : " + e.getMessage());
             e.printStackTrace();
-
         }
     }
-
     public Project getProjectById(int id) {
         String query = "SELECT * FROM projects WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -63,7 +59,7 @@ public class ProjectRepository {
 
         // Use injected userService to get the User object
 
-        User user = userService.getUserById(userId);
+        User user = userRepository.findById(userId);
         return new Project(id, name, profitMargin, totalCost, status, user);
     }
 

@@ -23,6 +23,9 @@ public class Project {
         this.user = user;
     }
 
+    public Project(int id, String nomProjet, double margeBeneficiaire, double coutTotal, String string, User user) {
+    }
+
     public int getId() {
         return id;
     }
