@@ -20,6 +20,8 @@ public class ProjectRepository implements ProjectRepositoryInter {
         this.connection = connection;
         this.userRepository =  userRepository;
     }
+
+
 @Override
     public void createProject(Project project) {
         String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?::etatproject, ?)";
@@ -36,6 +38,8 @@ public class ProjectRepository implements ProjectRepositoryInter {
             e.printStackTrace();
         }
     }
+
+
 @Override
     public Project getProjectById(int id) {
         String query = "SELECT * FROM projects WHERE id = ?";
@@ -52,6 +56,7 @@ public class ProjectRepository implements ProjectRepositoryInter {
         return null;
     }
 
+
     private Project mapRowToProject(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String name = rs.getString("nomproject");
@@ -65,6 +70,8 @@ public class ProjectRepository implements ProjectRepositoryInter {
         User user = userRepository.findById(userId);
         return new Project(id,name, profitMargin, totalCost, status, user);
     }
+
+
 @Override
     public List<Project> getAllProjects() {
         List<Project> projects = new ArrayList<>();
@@ -115,6 +122,7 @@ public class ProjectRepository implements ProjectRepositoryInter {
             e.printStackTrace();
         }
     }
+
 @Override
     public void deleteProject(int id) {
         String query = "DELETE FROM projects WHERE id = ?";

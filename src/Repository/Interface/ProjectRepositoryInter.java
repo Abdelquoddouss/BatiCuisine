@@ -2,6 +2,7 @@ package Repository.Interface;
 
 import Entity.Project;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 public interface ProjectRepositoryInter {

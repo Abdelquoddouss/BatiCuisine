@@ -1,3 +1,4 @@
+import Repository.Interface.MaterialRepsitoryInter;
 import Repository.Interface.ProjectRepositoryInter;
 import Repository.Interface.UserRepositoryInter;
 import Repository.MaterialRepository;
@@ -22,7 +23,7 @@ public class Main {
         // Initialisation des repositories
         UserRepositoryInter userRepository = new UserRepository(DatabaseConnection.getConnection());
         ProjectRepositoryInter projectRepository = new ProjectRepository(DatabaseConnection.getConnection(), userRepository);
-        MaterialRepository materialRepository = new MaterialRepository(DatabaseConnection.getConnection());
+        MaterialRepsitoryInter materialRepository = new MaterialRepository(DatabaseConnection.getConnection());
 
         // Initialisation des services
         UserServiceInter userService = new UserService(userRepository);

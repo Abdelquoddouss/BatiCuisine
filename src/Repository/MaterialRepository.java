@@ -1,20 +1,22 @@
 package Repository;
 
 import Entity.Material;
+import Repository.Interface.MaterialRepsitoryInter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class MaterialRepository {
+public class MaterialRepository implements MaterialRepsitoryInter {
 
     private Connection connection;
+
 
     public MaterialRepository(Connection connection) {
         this.connection = connection;
     }
 
-    public void addMaterial(Material material) {
+    public void creerMaterial(Material material) {
         String query = "INSERT INTO materials (nom, typeComposant, tauxTva, quantite, coutUnitaire, coutTransport, coefficientQualite,\"project_id\") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, material.getNom());

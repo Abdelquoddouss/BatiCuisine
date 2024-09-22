@@ -1,18 +1,19 @@
 package Service;
 
 import Entity.Material;
+import Repository.Interface.MaterialRepsitoryInter;
 import Repository.MaterialRepository;
 
-public class MaterialService {
+public class MaterialService implements Service.Interface.MaterialServiceInter {
 
-    private MaterialRepository materialRepository;
+    private MaterialRepsitoryInter materialRepository;
 
-    public MaterialService(MaterialRepository materialRepository) {
+    public MaterialService(MaterialRepsitoryInter materialRepository) {
         this.materialRepository = materialRepository;
     }
 
     public void addMaterial(Material material) {
-        materialRepository.addMaterial(material);
+        materialRepository.creerMaterial(material);
     }
 
 }
