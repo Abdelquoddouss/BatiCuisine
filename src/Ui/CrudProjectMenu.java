@@ -10,33 +10,31 @@ import Service.UserService;
 import config.DatabaseConnection;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class CrudProjectMenu {
 
+    private UserService userService;
+    private ProjectService projectService;
+    private Scanner scanner;
 
-    private static UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
-    private static UserService userService = new UserService(new UserRepository(DatabaseConnection.getConnection()));
-    private static ProjectService projectService = new ProjectService(new ProjectRepository(DatabaseConnection.getConnection(), userRepository));
-    private static Scanner scanner = new Scanner(System.in);
-
-    public CrudProjectMenu(UserService userService, ProjectService projectService) {
+    public CrudProjectMenu(UserService userService, ProjectService projectService, Scanner scanner) {
         this.userService = userService;
         this.projectService = projectService;
+        this.scanner = scanner;
     }
 
-    public static void main(String[] args) {
+    public void afficherMenu() {
         int choix = -1;
-
         while (choix != 4) {
             afficherMenuPrincipal();
-
             try {
                 choix = scanner.nextInt();
-                scanner.nextLine(); // Consommer la nouvelle ligne
+                scanner.nextLine(); // Consomme la nouvelle ligne
             } catch (InputMismatchException e) {
                 System.out.println("\n[Erreur] Veuillez entrer un chiffre valide.");
-                scanner.next(); // Consommer l'entrée incorrecte
+                scanner.next(); // Consomme l'entrée incorrecte
                 continue;
             }
 
@@ -69,7 +67,7 @@ public class CrudProjectMenu {
         System.out.print("Choisissez une option : ");
     }
 
-    private static void creerNouveauProjet() {
+    public  void creerNouveauProjet() {
         User client = null;
 
         System.out.println("\n--- Recherche de client ---");
@@ -77,19 +75,20 @@ public class CrudProjectMenu {
         System.out.println("2. Ajouter un nouveau client");
         System.out.print("Choisissez une option : ");
         int choixClient = scanner.nextInt();
-        scanner.nextLine(); // Consommer la nouvelle ligne
+        scanner.nextLine();
 
         if (choixClient == 1) {
+            // Rechercher un client existant
             client = rechercherClientExistant();
         } else if (choixClient == 2) {
-            client = ajouterNouveauClient();
+            // Appel de la méthode dans CrudUserMenu
+            CrudUserMenu crudUserMenu = new CrudUserMenu(userService, scanner);
+            crudUserMenu.afficherMenuUtilisateur(scanner);
+            System.out.print("Entrez le nom du client que vous venez d'ajouter ou gérer : ");
+            String clientNom = scanner.nextLine();
+            client = userService.getUserByName(clientNom);
         } else {
             System.out.println("\nChoix invalide. Retour au menu principal.");
-            return;
-        }
-
-        if (client == null) {
-            System.out.println("\nAucun client sélectionné. Retour au menu principal.");
             return;
         }
 
@@ -116,7 +115,7 @@ public class CrudProjectMenu {
         System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
     }
 
-    private static User rechercherClientExistant() {
+    private  User rechercherClientExistant() {
         System.out.println("\n--- Recherche de client existant ---");
         System.out.print("Entrez le nom du client : ");
         String nomUtilisateur = scanner.nextLine();
@@ -135,7 +134,7 @@ public class CrudProjectMenu {
         return utilisateurRecupere;
     }
 
-    private static User ajouterNouveauClient() {
+    private  User ajouterNouveauClient() {
         System.out.println("\n--- Ajout d'un nouveau client ---");
         System.out.print("Entrez le nom du client : ");
         String nomClient = scanner.nextLine();
@@ -159,15 +158,31 @@ public class CrudProjectMenu {
 
 
     // Afficher les projets existants
-    private static void afficherProjetsExistants() {
+    private  void afficherProjetsExistants() {
         System.out.println("\n--- Projets Existants ---");
-        // Logique pour afficher les projets (liste factice ici)
-        System.out.println("1. Projet Rénovation Cuisine Mme Dupont");
-        System.out.println("2. Projet Aménagement Salle de Bain Mr Martin");
+
+        // Récupérer la liste des projets depuis le service
+        List<Project> projets = projectService.getAllProjects();
+
+        // Vérifier si des projets existent
+        if (projets.isEmpty()) {
+            System.out.println("Aucun projet trouvé.");
+            return;
+        }
+
+        // Afficher les détails de chaque projet
+        for (Project projet : projets) {
+            System.out.printf("ID: %d | Nom: %s | Surface: %.2f m² | État: %s%n",
+                    projet.getId(),
+                    projet.getNomProject(),
+                    projet.getMargeBeneficiaire(),
+                    projet.getEtatProject().name());
+        }
     }
 
+
     // Calculer le coût d'un projet
-    private static void calculerCoutProjet() {
+    private  void calculerCoutProjet() {
         System.out.println("\n--- Calcul du Coût d'un Projet ---");
         // Logique pour calculer le coût
         System.out.print("Entrez l'ID du projet : ");
@@ -178,7 +193,7 @@ public class CrudProjectMenu {
     }
 
     // Quitter le programme
-    private static void quitter() {
+    private  void quitter() {
         System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
     }
 }

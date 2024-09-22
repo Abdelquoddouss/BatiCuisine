@@ -8,65 +8,54 @@ import Service.UserService;
 import config.DatabaseConnection;
 
 import java.sql.Connection;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 public class CrudUserMenu {
 
     private static UserService userService;
-    private static Scanner scanner = new Scanner(System.in);
+    private static Scanner scanner;
 
-    public static void main(String[] args) {
+    public CrudUserMenu(UserService userService, Scanner scanner) {
+        this.userService = userService;
+        this.scanner = scanner;
+    }
 
-        Connection connection = DatabaseConnection.getConnection();
-
-        UserRepository userRepository = new UserRepository(connection);
-        ProjectRepository projectRepository = new ProjectRepository(connection, userRepository);
-        userService = new UserService(userRepository);
-        ProjectService projectService = new ProjectService(projectRepository);
-
+    public void afficherMenuUtilisateur(Scanner scanner) {
         int choix = -1;
-
-        while (choix != 0) {
-            afficherMenuPrincipal();
-            choix = scanner.nextInt();
-            scanner.nextLine(); // Consommer la nouvelle ligne
+        while (choix != 3) {
+            System.out.println("\n=== Menu Utilisateur ===");
+            System.out.println("1. Ajouter un utilisateur");
+            System.out.println("2. Afficher les utilisateurs");
+            System.out.println("3. Quitter");
+            System.out.print("Choisissez une option : ");
+            try {
+                choix = scanner.nextInt();
+                scanner.nextLine(); // Consomme la nouvelle ligne
+            } catch (InputMismatchException e) {
+                System.out.println("Erreur: Veuillez entrer un nombre.");
+                scanner.next(); // Consomme l'entrée incorrecte
+                continue;
+            }
 
             switch (choix) {
                 case 1:
-                    ajouterUtilisateur();
+                    ajouterUtilisateur(scanner);
                     break;
                 case 2:
-                    voirUtilisateur();
-                    break;
-                case 3:
-                    mettreAJourUtilisateur();
-                    break;
-                case 4:
-                    supprimerUtilisateur();
-                    break;
-                case 5:
                     listerTousLesUtilisateurs();
                     break;
-                case 0:
-                    System.out.println("Fermeture de l'application...");
+                case 3:
+                    System.out.println("Retour au menu principal.");
                     break;
                 default:
-                    System.out.println("Choix invalide ! Veuillez réessayer.");
+                    System.out.println("Choix invalide.");
             }
-        }
-
-        scanner.close();
-
-        try {
-            connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    // Méthode pour afficher le menu principal
-    private static void afficherMenuPrincipal() {
+    private static void afficherMenuPrincipal(Scanner scanner) {
         System.out.println("\n=============================");
         System.out.println("=== Menu CRUD Utilisateur ===");
         System.out.println("=============================");
@@ -81,7 +70,7 @@ public class CrudUserMenu {
     }
 
     // Méthode pour ajouter un utilisateur
-    private static void ajouterUtilisateur() {
+    private static void ajouterUtilisateur(Scanner scanner) {
         System.out.println("\n--- Ajouter un utilisateur ---");
         System.out.print("Entrez le nom de l'utilisateur : ");
         String nom = scanner.nextLine();

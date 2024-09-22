@@ -24,34 +24,40 @@ CREATE TABLE Composants (
                             nom VARCHAR(255) NOT NULL,
                             typeComposant VARCHAR(255),
                             tauxTva DOUBLE PRECISION
+
 );
 
 CREATE TABLE Materials (
-                           id SERIAL PRIMARY KEY,
-                           componsant_id INT,
                            coutUnitaire DOUBLE PRECISION,
                            quantite DOUBLE PRECISION,
                            coutTransport DOUBLE PRECISION,
-                           coefficientQualite DOUBLE PRECISION,
-                           FOREIGN KEY (componsant_id) REFERENCES Composants(id) ON DELETE CASCADE
-);
+                           coefficientQualite DOUBLE PRECISION
+) INHERITS (Composants);
+
 
 CREATE TABLE Labor (
-                       id SERIAL PRIMARY KEY,
-                       componsant_id INT,
                        tauxHoraire DOUBLE PRECISION,
                        heuresTravail DOUBLE PRECISION,
-                       productuvuteOuvrier DOUBLE PRECISION,
-                       FOREIGN KEY (componsant_id) REFERENCES Composants(id) ON DELETE CASCADE
-);
+                       productuviteOuvrier DOUBLE PRECISION
+) INHERITS (Composants);
+
 
 CREATE TABLE Devis (
-                        id SERIAL PRIMARY KEY,
-                        montantEstime DOUBLE PRECISION,
-                        dateEmission DATE,
-                        accepte BOOLEAN,
-                        dateValidate DATE,
-                        project_id INT,
-                        FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE
+id SERIAL PRIMARY KEY,
+montantEstime DOUBLE PRECISION,
+dateEmission DATE,
+accepte BOOLEAN,
+dateValidate DATE,
+project_id INT,
+FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE
 );
+
+
+
+ALTER TABLE composants
+    ADD COLUMN project_id INT;
+
+ALTER TABLE composants
+    ADD CONSTRAINT fk_project
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
