@@ -3,6 +3,7 @@ package Ui;
 import Entity.User;
 import Repository.ProjectRepository;
 import Repository.UserRepository;
+import Service.Interface.UserServiceInter;
 import Service.ProjectService;
 import Service.UserService;
 import config.DatabaseConnection;
@@ -14,10 +15,10 @@ import java.util.Scanner;
 
 public class CrudUserMenu {
 
-    private static UserService userService;
+    private static UserServiceInter userService;
     private static Scanner scanner;
 
-    public CrudUserMenu(UserService userService, Scanner scanner) {
+    public CrudUserMenu(UserServiceInter userService, Scanner scanner) {
         this.userService = userService;
         this.scanner = scanner;
     }

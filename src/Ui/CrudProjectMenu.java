@@ -1,10 +1,13 @@
 package Ui;
 
+import Entity.Material;
 import Entity.Project;
 import Entity.User;
 import Entity.enums.EtatProject;
 import Repository.ProjectRepository;
 import Repository.UserRepository;
+import Service.Interface.UserServiceInter;
+import Service.MaterialService;
 import Service.ProjectService;
 import Service.UserService;
 import config.DatabaseConnection;
@@ -15,13 +18,15 @@ import java.util.Scanner;
 
 public class CrudProjectMenu {
 
-    private UserService userService;
+    private UserServiceInter userService;
     private ProjectService projectService;
+    private MaterialService materialService;
     private Scanner scanner;
 
-    public CrudProjectMenu(UserService userService, ProjectService projectService, Scanner scanner) {
+    public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, Scanner scanner) {
         this.userService = userService;
         this.projectService = projectService;
+        this.materialService = materialService;
         this.scanner = scanner;
     }
 
@@ -48,6 +53,7 @@ public class CrudProjectMenu {
                 case 3:
                     calculerCoutProjet();
                     break;
+
                 case 4:
                     quitter();
                     break;
@@ -67,7 +73,7 @@ public class CrudProjectMenu {
         System.out.print("Choisissez une option : ");
     }
 
-    public  void creerNouveauProjet() {
+    public void creerNouveauProjet() {
         User client = null;
 
         System.out.println("\n--- Recherche de client ---");
@@ -105,13 +111,14 @@ public class CrudProjectMenu {
         double margeBeneficiaire = scanner.nextDouble();
         scanner.nextLine();
 
-
         // Créer un nouvel objet Project
         Project nouveauProjet = new Project(nomProjet, margeBeneficiaire, surfaceCuisine, EtatProject.EN_COURS, client);
         projectService.addProject(nouveauProjet);
 
-
         System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
+
+        // Ajout des matériaux associés au projet
+        ajouterMateriaux(nouveauProjet);
     }
 
     private  User rechercherClientExistant() {
@@ -159,6 +166,7 @@ public class CrudProjectMenu {
         int userId = scanner.nextInt();
 
         List<Project> projets = projectService.getProjectsByUserId(userId);
+        Project projet= projectService.getProjectById(9);
         if (projets.isEmpty()) {
             System.out.println("Aucun projet trouvé pour l'utilisateur avec ID: " + userId);
         } else {
@@ -169,6 +177,103 @@ public class CrudProjectMenu {
                         p.getId(), p.getNomProject(), p.getCouTotal(), p.getEtatProject(), p.getUser() != null ? p.getUser().getNom() : "Aucun utilisateur"
                 );
             }
+//            System.out.printf("%-5d %-20s %-20s %-15s %-15s%n",
+//                    projet.getId(), projet.getNomProject(), projet.getCouTotal(), projet.getEtatProject(), projet.getUser() != null ? projet.getUser().getNom() : "Aucun utilisateur"
+//                    );
+        }
+    }
+
+    public void ajouterMateriaux(Project projet) {
+        boolean continuer = true;
+
+        while (continuer) {
+            System.out.println("\n--- Ajout des Matériaux pour le projet " + projet.getNomProject() + " ---");
+
+            // Demande des détails sur le matériau
+            System.out.print("Entrez le nom du matériau : ");
+            String nom = scanner.nextLine();
+
+            System.out.print("Entrez le type de composant (ex: carrelage, bois, etc.) : ");
+            String typeComposant = scanner.nextLine();
+
+            double tauxTva = 0;
+            boolean validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("Entrez la TVA applicable (%) : ");
+                    tauxTva = scanner.nextDouble();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Erreur : veuillez entrer un nombre valide pour la TVA.");
+                    scanner.next(); // Nettoyer l'entrée incorrecte
+                }
+            }
+
+            int quantite = 0;
+            validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("Entrez la quantité de ce matériau (en m²) : ");
+                    quantite = scanner.nextInt();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Erreur : veuillez entrer un nombre entier pour la quantité.");
+                    scanner.next(); // Nettoyer l'entrée incorrecte
+                }
+            }
+
+            double coutUnitaire = 0;
+            validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("Entrez le coût unitaire de ce matériau (€/m²) : ");
+                    coutUnitaire = scanner.nextDouble();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Erreur : veuillez entrer un nombre valide pour le coût unitaire.");
+                    scanner.next(); // Nettoyer l'entrée incorrecte
+                }
+            }
+
+            double coutTransport = 0;
+            validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("Entrez le coût de transport de ce matériau (€) : ");
+                    coutTransport = scanner.nextDouble();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Erreur : veuillez entrer un nombre valide pour le coût de transport.");
+                    scanner.next(); // Nettoyer l'entrée incorrecte
+                }
+            }
+
+            double coefficientQualite = 0;
+            validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("Entrez le coefficient de qualité du matériau (1.0 = standard, > 1.0 = haute qualité) : ");
+                    coefficientQualite = scanner.nextDouble();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Erreur : veuillez entrer un nombre valide pour le coefficient de qualité.");
+                    scanner.next(); // Nettoyer l'entrée incorrecte
+                }
+            }
+
+            scanner.nextLine();
+
+            // Créer et ajouter le matériau
+            Material material = new Material(nom, typeComposant, tauxTva, 0, quantite, coutUnitaire, coutTransport, coefficientQualite);
+            material.setProject(projet);
+            materialService.addMaterial(material);
+            System.out.println("Matériau ajouté avec succès pour le projet " + projet.getNomProject() + " !");
+
+
+            // Demander si l'utilisateur veut ajouter un autre matériau
+            System.out.print("Voulez-vous ajouter un autre matériau ? (y/n) : ");
+            String reponse = scanner.nextLine();
+            continuer = reponse.equalsIgnoreCase("y");
         }
     }
 

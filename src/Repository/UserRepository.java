@@ -1,12 +1,13 @@
 package Repository;
 
 import Entity.User;
+import Repository.Interface.UserRepositoryInter;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepository {
+public class UserRepository implements UserRepositoryInter {
 
     private  Connection connection;
 

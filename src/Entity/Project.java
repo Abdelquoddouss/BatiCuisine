@@ -24,6 +24,12 @@ public class Project {
     }
 
     public Project(int id, String name, double profitMargin, double totalCost, EtatProject status, User user) {
+        this.id = id;
+        this.NomProject = name;
+        this.margeBeneficiaire = profitMargin;
+        this.couTotal = totalCost;
+        this.etatProject = status;
+        this.user = user;
     }
 
 

@@ -3,22 +3,24 @@ package Repository;
 import Entity.Project;
 import Entity.User;
 import Entity.enums.EtatProject;
+import Repository.Interface.ProjectRepositoryInter;
+import Repository.Interface.UserRepositoryInter;
 import Service.UserService;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectRepository {
+public class ProjectRepository implements ProjectRepositoryInter {
 
     private Connection connection;
-    private UserRepository userRepository;
+    private UserRepositoryInter userRepository;
 
-    public ProjectRepository(Connection connection , UserRepository userRepository) {
+    public ProjectRepository(Connection connection,UserRepositoryInter userRepository) {
         this.connection = connection;
         this.userRepository =  userRepository;
     }
-
+@Override
     public void createProject(Project project) {
         String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?::etatproject, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -34,7 +36,7 @@ public class ProjectRepository {
             e.printStackTrace();
         }
     }
-
+@Override
     public Project getProjectById(int id) {
         String query = "SELECT * FROM projects WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -63,7 +65,7 @@ public class ProjectRepository {
         User user = userRepository.findById(userId);
         return new Project(id,name, profitMargin, totalCost, status, user);
     }
-
+@Override
     public List<Project> getAllProjects() {
         List<Project> projects = new ArrayList<>();
         String query = "SELECT * FROM projects";
@@ -88,7 +90,7 @@ public class ProjectRepository {
         return projects;
     }
 
-
+@Override
     public void updateProject(Project project) {
         String query = "UPDATE projects SET nomproject = ?, margebeneficiaire = ?, coutotal = ?, etatproject = ?, client_id = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -113,7 +115,7 @@ public class ProjectRepository {
             e.printStackTrace();
         }
     }
-
+@Override
     public void deleteProject(int id) {
         String query = "DELETE FROM projects WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -124,15 +126,17 @@ public class ProjectRepository {
         }
     }
 
-
+@Override
     public List<Project> getProjectsByUserId(int userId) {
         List<Project> projects = new ArrayList<>();
+    User user = userRepository.findById(userId);
         String query = "SELECT * FROM projects WHERE client_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     // Créer un nouvel objet Project directement à partir des résultats
+                    ResultSet rss=rs;
                     int id = rs.getInt("id");
                     String name = rs.getString("nomproject");
                     double profitMargin = rs.getDouble("margebeneficiaire");
@@ -141,7 +145,8 @@ public class ProjectRepository {
                     int clientId = rs.getInt("client_id");
 
                     // Récupérer l'utilisateur associé
-                    User user = userRepository.findById(clientId);
+
+//                    System.out.println(user.toString());
 
                     // Créer le projet
                     Project project = new Project(id, name, profitMargin, totalCost, status, user);

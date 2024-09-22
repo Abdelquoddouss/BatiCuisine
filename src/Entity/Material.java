@@ -7,6 +7,7 @@ public class Material extends Composants {
     private double coutUnitaire ;
     private double coutTransport ;
     private double coefficientQualite ;
+    private Project project;
 
 
     public Material( String nom, String typeComposant, double tauxTva, int id, int quantite, double coutUnitaire, double coutTransport, double coefficientQualite) {
@@ -58,5 +59,13 @@ public class Material extends Composants {
 
     public void setCoefficientQualite(double coefficientQualite) {
         this.coefficientQualite = coefficientQualite;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

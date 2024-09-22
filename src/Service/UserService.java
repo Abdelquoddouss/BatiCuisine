@@ -1,19 +1,21 @@
 package Service;
 
 import Entity.User;
+import Repository.Interface.UserRepositoryInter;
 import Repository.UserRepository;
 
 import java.util.List;
 
-public class UserService {
+public class UserService implements Service.Interface.UserServiceInter {
 
-    private UserRepository userRepository;
+    private UserRepositoryInter userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepositoryInter userRepository) {
         this.userRepository = userRepository;
     }
 
     // Create user
+    @Override
     public void addUser(User user) {
         userRepository.create(user);
     }
