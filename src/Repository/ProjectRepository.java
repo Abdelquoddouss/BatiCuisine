@@ -34,6 +34,7 @@ public class ProjectRepository {
             e.printStackTrace();
         }
     }
+
     public Project getProjectById(int id) {
         String query = "SELECT * FROM projects WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -60,7 +61,7 @@ public class ProjectRepository {
         // Use injected userService to get the User object
 
         User user = userRepository.findById(userId);
-        return new Project(name, profitMargin, totalCost, status, user);
+        return new Project(id,name, profitMargin, totalCost, status, user);
     }
 
     public List<Project> getAllProjects() {
@@ -68,13 +69,25 @@ public class ProjectRepository {
         String query = "SELECT * FROM projects";
         try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                projects.add(mapRowToProject(rs));
+                // Directly create Project objects using ResultSet data
+                int id = rs.getInt("id");
+                String name = rs.getString("nomproject");
+                double profitMargin = rs.getDouble("margebeneficiaire");
+                double totalCost = rs.getDouble("coutotal");
+                EtatProject status = EtatProject.valueOf(rs.getString("etatproject"));
+                int userId = rs.getInt("client_id");
+
+                User user = userRepository.findById(userId); // Assuming userRepository is available
+
+                // Create and add the Project object to the list
+                projects.add(new Project(id, name, profitMargin, totalCost, status, user));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return projects;
     }
+
 
     public void updateProject(Project project) {
         String query = "UPDATE projects SET nomproject = ?, margebeneficiaire = ?, coutotal = ?, etatproject = ?, client_id = ? WHERE id = ?";
@@ -110,6 +123,37 @@ public class ProjectRepository {
             e.printStackTrace();
         }
     }
+
+
+    public List<Project> getProjectsByUserId(int userId) {
+        List<Project> projects = new ArrayList<>();
+        String query = "SELECT * FROM projects WHERE client_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Créer un nouvel objet Project directement à partir des résultats
+                    int id = rs.getInt("id");
+                    String name = rs.getString("nomproject");
+                    double profitMargin = rs.getDouble("margebeneficiaire");
+                    double totalCost = rs.getDouble("coutotal");
+                    EtatProject status = EtatProject.valueOf(rs.getString("etatproject"));
+                    int clientId = rs.getInt("client_id");
+
+                    // Récupérer l'utilisateur associé
+                    User user = userRepository.findById(clientId);
+
+                    // Créer le projet
+                    Project project = new Project(id, name, profitMargin, totalCost, status, user);
+                    projects.add(project);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return projects;
+    }
+
 
 
 

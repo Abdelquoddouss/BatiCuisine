@@ -4,7 +4,8 @@ import Entity.enums.EtatProject;
 
 public class Project {
 
- private int id ;
+
+    private int id ;
     private String NomProject ;
     private double margeBeneficiaire ;
     private double couTotal ;
@@ -22,8 +23,9 @@ public class Project {
         this.user = user;
     }
 
-    public Project(int id, String nomProjet, double margeBeneficiaire, double coutTotal, String string, User user) {
+    public Project(int id, String name, double profitMargin, double totalCost, EtatProject status, User user) {
     }
+
 
     public int getId() {
         return id;

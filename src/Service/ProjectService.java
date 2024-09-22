@@ -33,6 +33,9 @@ public class ProjectService {
         projectRepository.deleteProject(id);
     }
 
+    public List<Project> getProjectsByUserId(int userId) {
+        return projectRepository.getProjectsByUserId(userId);
+    }
 
 
 }

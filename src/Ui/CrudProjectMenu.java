@@ -43,7 +43,7 @@ public class CrudProjectMenu {
                     creerNouveauProjet();
                     break;
                 case 2:
-                    afficherProjetsExistants();
+                    afficherProjetsParUtilisateur();
                     break;
                 case 3:
                     calculerCoutProjet();
@@ -108,9 +108,8 @@ public class CrudProjectMenu {
 
         // Créer un nouvel objet Project
         Project nouveauProjet = new Project(nomProjet, margeBeneficiaire, surfaceCuisine, EtatProject.EN_COURS, client);
-
-        // Sauvegarder dans la base de données
         projectService.addProject(nouveauProjet);
+
 
         System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
     }
@@ -134,52 +133,6 @@ public class CrudProjectMenu {
         return utilisateurRecupere;
     }
 
-    private  User ajouterNouveauClient() {
-        System.out.println("\n--- Ajout d'un nouveau client ---");
-        System.out.print("Entrez le nom du client : ");
-        String nomClient = scanner.nextLine();
-
-        System.out.print("Entrez l'adresse du client : ");
-        String adresseClient = scanner.nextLine();
-
-        System.out.print("Entrez le numéro de téléphone du client : ");
-        String telephoneClient = scanner.nextLine();
-
-        System.out.println("Le client '" + nomClient + "' a été ajouté.");
-
-        // Créer un nouvel objet User
-        User client = new User(0, nomClient, adresseClient, telephoneClient, false);
-
-        // Sauvegarder dans la base de données
-        userService.addUser(client);
-
-        return client;
-    }
-
-
-    // Afficher les projets existants
-    private  void afficherProjetsExistants() {
-        System.out.println("\n--- Projets Existants ---");
-
-        // Récupérer la liste des projets depuis le service
-        List<Project> projets = projectService.getAllProjects();
-
-        // Vérifier si des projets existent
-        if (projets.isEmpty()) {
-            System.out.println("Aucun projet trouvé.");
-            return;
-        }
-
-        // Afficher les détails de chaque projet
-        for (Project projet : projets) {
-            System.out.printf("ID: %d | Nom: %s | Surface: %.2f m² | État: %s%n",
-                    projet.getId(),
-                    projet.getNomProject(),
-                    projet.getMargeBeneficiaire(),
-                    projet.getEtatProject().name());
-        }
-    }
-
 
     // Calculer le coût d'un projet
     private  void calculerCoutProjet() {
@@ -196,4 +149,27 @@ public class CrudProjectMenu {
     private  void quitter() {
         System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
     }
+
+
+    private void afficherProjetsParUtilisateur() {
+        System.out.println("\n--- Afficher Projets par Utilisateur ---");
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Entrez l'ID de l'utilisateur : ");
+        int userId = scanner.nextInt();
+
+        List<Project> projets = projectService.getProjectsByUserId(userId);
+        if (projets.isEmpty()) {
+            System.out.println("Aucun projet trouvé pour l'utilisateur avec ID: " + userId);
+        } else {
+            System.out.printf("%-5s %-20s %-20s %-15s %-15s%n", "ID", "nomproject", "coutotal", "etatproject", "client_id");
+            System.out.println("-------------------------------------------------------------------------------");
+            for (Project p : projets) {
+                System.out.printf("%-5d %-20s %-20s %-15s %-15s%n",
+                        p.getId(), p.getNomProject(), p.getCouTotal(), p.getEtatProject(), p.getUser() != null ? p.getUser().getNom() : "Aucun utilisateur"
+                );
+            }
+        }
+    }
+
 }
