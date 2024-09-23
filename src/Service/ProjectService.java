@@ -15,8 +15,8 @@ public class ProjectService implements Service.Interface.ProjectServiceInter {
     }
 
 @Override
-    public void addProject(Project project) {
-        projectRepository.createProject(project);
+    public Project addProject(Project project) {
+       return projectRepository.createProject(project);
     }
 @Override
     public Project getProjectById(int id) {

@@ -2,6 +2,9 @@ package Entity;
 
 import Entity.enums.EtatProject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Project {
 
 
@@ -11,6 +14,10 @@ public class Project {
     private double couTotal ;
     private EtatProject etatProject ;
     private User user ;
+    private List<Composants> composants;
+
+
+
 
     public Project() {
     }
@@ -21,6 +28,7 @@ public class Project {
         this.couTotal = couTotal;
         this.etatProject = etatProject;
         this.user = user;
+        this.composants = new ArrayList<>();
     }
 
     public Project(int id, String name, double profitMargin, double totalCost, EtatProject status, User user) {
@@ -30,6 +38,7 @@ public class Project {
         this.couTotal = totalCost;
         this.etatProject = status;
         this.user = user;
+        this.composants = new ArrayList<>();
     }
 
 

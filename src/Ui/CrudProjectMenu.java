@@ -115,7 +115,7 @@ public class CrudProjectMenu {
 
         System.out.print("Entrez la surface de la cuisine (en m²) : ");
         double surfaceCuisine = scanner.nextDouble();
-        scanner.nextLine(); // Consommer la nouvelle ligne
+        scanner.nextLine();
 
         System.out.print("Entrez la marge bénéficiaire (en %) : ");
         double margeBeneficiaire = scanner.nextDouble();
@@ -123,13 +123,39 @@ public class CrudProjectMenu {
 
         // Créer un nouvel objet Project
         Project nouveauProjet = new Project(nomProjet, margeBeneficiaire, surfaceCuisine, EtatProject.EN_COURS, client);
-        projectService.addProject(nouveauProjet);
+        Project savedProject = projectService.addProject(nouveauProjet);
 
         System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
 
-        // Ajout des matériaux associés au projet
-        ajouterMateriaux(nouveauProjet);
+        // Nouveau menu pour choisir quoi ajouter
+        boolean continuerAjout = true;
+        while (continuerAjout) {
+            System.out.println("\nQue souhaitez-vous ajouter au projet ?");
+            System.out.println("1. Ajouter de la main-d'œuvre");
+            System.out.println("2. Ajouter des matériaux");
+            System.out.println("3. Terminer");
+            System.out.print("Choisissez une option : ");
+
+            int choixAjout = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choixAjout) {
+                case 1:
+                    ajouterMainOeuvre();
+                    break;
+                case 2:
+                    ajouterMateriaux(savedProject);
+                    break;
+                case 3:
+                    continuerAjout = false;
+                    System.out.println("Ajouts terminés pour le projet.");
+                    break;
+                default:
+                    System.out.println("Choix invalide. Veuillez réessayer.");
+            }
+        }
     }
+
 
     private  User rechercherClientExistant() {
         System.out.println("\n--- Recherche de client existant ---");
@@ -166,7 +192,6 @@ public class CrudProjectMenu {
     private  void quitter() {
         System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
     }
-
 
     private void afficherProjetsParUtilisateur() {
         System.out.println("\n--- Afficher Projets par Utilisateur ---");
@@ -299,7 +324,7 @@ public class CrudProjectMenu {
                 break;
             } catch (InputMismatchException e) {
                 System.out.println("Erreur : veuillez entrer un nombre valide pour le taux horaire.");
-                scanner.next(); // Nettoyer l'entrée incorrecte
+                scanner.next();
             }
         }
 
@@ -323,7 +348,7 @@ public class CrudProjectMenu {
                 break;
             } catch (InputMismatchException e) {
                 System.out.println("Erreur : veuillez entrer un nombre valide pour le facteur de productivité.");
-                scanner.next(); // Nettoyer l'entrée incorrecte
+                scanner.next();
             }
         }
 

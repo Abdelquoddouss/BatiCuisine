@@ -17,7 +17,7 @@ public class MaterialRepository implements MaterialRepsitoryInter {
     }
 
     public void creerMaterial(Material material) {
-        String query = "INSERT INTO materials (nom, typeComposant, tauxTva, quantite, coutUnitaire, coutTransport, coefficientQualite,\"project_id\") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO materials (nom, typeComposant, tauxTva, quantite, coutUnitaire, coutTransport, coefficientQualite,project_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, material.getNom());
             ps.setString(2, material.getTypeComposant());
@@ -27,6 +27,8 @@ public class MaterialRepository implements MaterialRepsitoryInter {
             ps.setDouble(6, material.getCoutTransport());
             ps.setDouble(7, material.getCoefficientQualite());
             ps.setInt(8, material.getProject().getId());
+            System.out.println(material.getProject().getId());
+
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

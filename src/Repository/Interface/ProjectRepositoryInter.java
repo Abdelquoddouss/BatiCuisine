@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.util.List;
 
 public interface ProjectRepositoryInter {
-    void createProject(Project project);
+    Project createProject(Project project);
     Project getProjectById(int id);
     List<Project> getAllProjects();
     void updateProject(Project project);

@@ -23,20 +23,26 @@ public class ProjectRepository implements ProjectRepositoryInter {
 
 
 @Override
-    public void createProject(Project project) {
+    public Project createProject(Project project) {
         String sql = "INSERT INTO projects (nomproject, margebeneficiaire, coutotal, etatproject, client_id) VALUES (?, ?, ?, ?::etatproject, ?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, project.getNomProject());
             preparedStatement.setDouble(2, project.getMargeBeneficiaire());
             preparedStatement.setDouble(3, project.getCouTotal());
             preparedStatement.setString(4, project.getEtatProject().name());
             preparedStatement.setInt(5, project.getUser().getId());
             preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            if (rs.next()) {
+                project.setId(rs.getInt(1));
+            }
+
             System.out.println("Le projet a été inséré avec succès !");
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'insertion du projet : " + e.getMessage());
             e.printStackTrace();
         }
+        return project;
     }
 
 
