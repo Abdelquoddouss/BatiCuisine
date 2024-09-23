@@ -1,5 +1,7 @@
 package Service.Interface;
 
+import Entity.Labor;
+import Entity.Material;
 import Entity.Project;
 
 import java.util.List;
@@ -11,4 +13,5 @@ public interface ProjectServiceInter {
     void updateProject(Project project);
     void deleteProject(int id);
     List<Project> getProjectsByUserId(int userId);
+
 }

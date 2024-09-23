@@ -1,11 +1,15 @@
 package Repository;
 
 import Entity.Labor;
+import Entity.Project;
 import Repository.Interface.LaborRepositoryInter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LaborRepository implements LaborRepositoryInter {
 
@@ -32,4 +36,42 @@ public class LaborRepository implements LaborRepositoryInter {
             e.printStackTrace();
         }
     }
+
+
+    // Méthode pour récupérer tous les travaux associés à un projet
+    public List<Labor> findAllLaborsByProject(int projectId) {
+        List<Labor> workforces = new ArrayList<>();
+        String sql = "SELECT l.id, l.tauxHoraire, l.heuresTravail, l.productuvuteOuvrier, " +
+                "l.nom, l.taux_tva, l.project_id, l.type_composant " +
+                "FROM labors l WHERE l.project_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, projectId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                Project project = new Project();
+                project.setId(resultSet.getInt("project_id"));
+
+                Labor labor = new Labor(
+                        resultSet.getString("nom"),
+                        resultSet.getString("type_composant"),
+                        resultSet.getDouble("taux_tva"),
+                        resultSet.getDouble("heuresTravail"),
+                        resultSet.getInt("id"),
+                        resultSet.getDouble("tauxHoraire"),
+                        resultSet.getDouble("productuvuteOuvrier")
+                );
+
+                labor.setProject(project);
+                workforces.add(labor);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération des travaux par ID de projet : " + e.getMessage());
+        }
+
+        return workforces;
+    }
+
+
 }

@@ -68,4 +68,5 @@ public class Material extends Composants {
     public void setProject(Project project) {
         this.project = project;
     }
+
 }

@@ -1,5 +1,7 @@
 package Repository.Interface;
 
+import Entity.Labor;
+import Entity.Material;
 import Entity.Project;
 
 import java.sql.ResultSet;

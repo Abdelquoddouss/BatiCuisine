@@ -16,4 +16,15 @@ public class MaterialService implements Service.Interface.MaterialServiceInter {
         materialRepository.creerMaterial(material);
     }
 
+
+    public double calculateMaterialAfterVatRate(Material material) {
+        double costBeforeVat = (material.getCoutUnitaire() * material.getQuantite() * material.getCoefficientQualite())+material.getCoutTransport();
+        return costBeforeVat+(costBeforeVat*material.getTauxTva()/100);
+    }
+
+    public double calculateMaterialBeforeVatRate(Material material) {
+        return (material.getCoutUnitaire()* material.getQuantite() * material.getCoefficientQualite()) + material.getCoutTransport();
+    }
+
+
 }

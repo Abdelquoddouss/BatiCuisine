@@ -1,5 +1,7 @@
 package Repository;
 
+import Entity.Labor;
+import Entity.Material;
 import Entity.Project;
 import Entity.User;
 import Entity.enums.EtatProject;
@@ -172,10 +174,6 @@ public class ProjectRepository implements ProjectRepositoryInter {
         }
         return projects;
     }
-
-
-
-
 
 }
 

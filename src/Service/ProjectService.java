@@ -1,8 +1,9 @@
 package Service;
 
+import Entity.Labor;
+import Entity.Material;
 import Entity.Project;
 import Repository.Interface.ProjectRepositoryInter;
-import Repository.ProjectRepository;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class ProjectService implements Service.Interface.ProjectServiceInter {
     public List<Project> getProjectsByUserId(int userId) {
         return projectRepository.getProjectsByUserId(userId);
     }
+
 
 
 }

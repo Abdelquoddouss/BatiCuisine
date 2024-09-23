@@ -61,4 +61,6 @@ public class Labor  extends Composants {
     public void setProject(Project project) {
         this.project = project;
     }
+
+
 }
