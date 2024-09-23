@@ -1,12 +1,15 @@
 package Ui;
 
+import Entity.Labor;
 import Entity.Material;
 import Entity.Project;
 import Entity.User;
 import Entity.enums.EtatProject;
 import Repository.ProjectRepository;
 import Repository.UserRepository;
+import Service.Interface.LaborServiceInter;
 import Service.Interface.UserServiceInter;
+import Service.LaborService;
 import Service.MaterialService;
 import Service.ProjectService;
 import Service.UserService;
@@ -21,12 +24,14 @@ public class CrudProjectMenu {
     private UserServiceInter userService;
     private ProjectService projectService;
     private MaterialService materialService;
+    private LaborServiceInter laborService;
     private Scanner scanner;
 
-    public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, Scanner scanner) {
+    public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, LaborServiceInter laborService, Scanner scanner) {
         this.userService = userService;
         this.projectService = projectService;
         this.materialService = materialService;
+        this.laborService = laborService;
         this.scanner = scanner;
     }
 
@@ -57,6 +62,10 @@ public class CrudProjectMenu {
                 case 4:
                     quitter();
                     break;
+                case 5:
+                    ajouterMainOeuvre();
+
+                    break;
                 default:
                     System.out.println("\nChoix invalide ! Veuillez réessayer.");
             }
@@ -68,6 +77,7 @@ public class CrudProjectMenu {
         System.out.println("\n=== Menu Principal ===");
         System.out.println("1. Créer un nouveau projet");
         System.out.println("2. Afficher les projets existants");
+        System.out.println("5. Ajouter de la main-d'œuvre");
         System.out.println("3. Calculer le coût d'un projet");
         System.out.println("4. Quitter");
         System.out.print("Choisissez une option : ");
@@ -177,9 +187,7 @@ public class CrudProjectMenu {
                         p.getId(), p.getNomProject(), p.getCouTotal(), p.getEtatProject(), p.getUser() != null ? p.getUser().getNom() : "Aucun utilisateur"
                 );
             }
-//            System.out.printf("%-5d %-20s %-20s %-15s %-15s%n",
-//                    projet.getId(), projet.getNomProject(), projet.getCouTotal(), projet.getEtatProject(), projet.getUser() != null ? projet.getUser().getNom() : "Aucun utilisateur"
-//                    );
+
         }
     }
 
@@ -276,5 +284,63 @@ public class CrudProjectMenu {
             continuer = reponse.equalsIgnoreCase("y");
         }
     }
+
+    public void ajouterMainOeuvre() {
+        System.out.println("\n--- Ajout de la main-d'œuvre ---");
+
+        System.out.print("Entrez le type de main-d'œuvre (e.g., Ouvrier de base, Spécialiste) : ");
+        String type = scanner.nextLine();
+
+        double tauxHoraire = 0;
+        while (true) {
+            try {
+                System.out.print("Entrez le taux horaire de cette main-d'œuvre (€/h) : ");
+                tauxHoraire = scanner.nextDouble();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Erreur : veuillez entrer un nombre valide pour le taux horaire.");
+                scanner.next(); // Nettoyer l'entrée incorrecte
+            }
+        }
+
+        double heuresTravail = 0;
+        while (true) {
+            try {
+                System.out.print("Entrez le nombre d'heures travaillées : ");
+                heuresTravail = scanner.nextDouble();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Erreur : veuillez entrer un nombre valide pour les heures travaillées.");
+                scanner.next(); // Nettoyer l'entrée incorrecte
+            }
+        }
+
+        double productuviteOuvrier = 0;
+        while (true) {
+            try {
+                System.out.print("Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ");
+                productuviteOuvrier = scanner.nextDouble();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Erreur : veuillez entrer un nombre valide pour le facteur de productivité.");
+                scanner.next(); // Nettoyer l'entrée incorrecte
+            }
+        }
+
+        // Créer et ajouter la main-d'œuvre
+        Labor labor = new Labor(type, "Main-d'œuvre", 0, heuresTravail, 0, tauxHoraire, productuviteOuvrier);
+        laborService.addLabor(labor);
+
+        System.out.println("Main-d'œuvre ajoutée avec succès !");
+
+        System.out.print("Voulez-vous ajouter un autre type de main-d'œuvre ? (y/n) : ");
+        String reponse = scanner.next();
+        if (reponse.equalsIgnoreCase("y")) {
+            ajouterMainOeuvre(); // Récursion pour ajouter un autre type
+        }
+    }
+
+
+
 
 }
