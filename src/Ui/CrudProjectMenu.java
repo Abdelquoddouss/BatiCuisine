@@ -1,20 +1,16 @@
 package Ui;
 
-import Entity.Labor;
-import Entity.Material;
-import Entity.Project;
-import Entity.User;
+import Entity.*;
 import Entity.enums.EtatProject;
 import Repository.ProjectRepository;
 import Repository.UserRepository;
+import Service.*;
 import Service.Interface.LaborServiceInter;
 import Service.Interface.UserServiceInter;
-import Service.LaborService;
-import Service.MaterialService;
-import Service.ProjectService;
-import Service.UserService;
 import config.DatabaseConnection;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -25,14 +21,17 @@ public class CrudProjectMenu {
     private ProjectService projectService;
     private MaterialService materialService;
     private LaborServiceInter laborService;
+    private DeviService deviService;
     private Scanner scanner;
+    private double discount = 0.9;
 
-    public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, LaborServiceInter laborService, Scanner scanner) {
+    public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, LaborServiceInter laborService, Scanner scanner,DeviService deviService) {
         this.userService = userService;
         this.projectService = projectService;
         this.materialService = materialService;
         this.laborService = laborService;
         this.scanner = scanner;
+        this.deviService=deviService;
     }
 
     public void afficherMenu() {
@@ -56,9 +55,8 @@ public class CrudProjectMenu {
                     afficherProjetsParUtilisateur();
                     break;
                 case 3:
-                    calculerCoutProjet();
+                     calculerCoutProjet();
                     break;
-
                 case 4:
                     quitter();
                     break;
@@ -67,6 +65,122 @@ public class CrudProjectMenu {
                     System.out.println("\nChoix invalide ! Veuillez réessayer.");
             }
         }
+    }
+
+    private boolean getYesNoInput(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.next().trim().toLowerCase();
+        return input.equals("y") || input.equals("yes");
+    }
+
+    public void calculerCoutProjet() {
+        System.out.println("--- Total Cost Calculation ---");
+
+        System.out.print("Enter project ID: ");
+        int projectId = scanner.nextInt();
+
+        Project project = projectService.getProjectById(projectId);
+
+        List<Material> materials = materialService.findAllMaterialsByProject(projectId);
+        List<Labor> Labors = laborService.findAllLaborsByProject(projectId);
+
+        double totalMaterialBeforeVat = 0;
+        double totalMaterialAfterVat = 0;
+
+        for (Material material : materials) {
+            double materialCostBeforeVat = materialService.calculateMaterialBeforeVatRate(material);
+            double materialCostAfterVat = materialService.calculateMaterialAfterVatRate(material);
+
+            totalMaterialBeforeVat += materialCostBeforeVat;
+            totalMaterialAfterVat += materialCostAfterVat;
+        }
+
+        double totalLaborsBeforeVat = 0;
+        double totalLaborsAfterVat = 0;
+
+        for (Labor labor : Labors) {
+            double laborCostBeforeVat = laborService.calculateLaborBeforeVatRate(labor);
+            double laborCostAfterVat = laborService.calculateLaborAfterVatRate(labor);
+
+            totalLaborsBeforeVat += laborCostBeforeVat;
+            totalLaborsAfterVat += laborCostAfterVat;
+        }
+
+        double totalCostBeforeMargin = totalMaterialBeforeVat + totalLaborsBeforeVat;
+        double totalCostAfterVat = totalMaterialAfterVat + totalLaborsAfterVat;
+
+        double totalCost = totalCostAfterVat;
+        double marginRate = 0.0;
+        if (getYesNoInput("Do you want to apply a profit margin to the project? (y/n): ")) {
+            System.out.print("Enter profit margin percentage: ");
+            marginRate = scanner.nextDouble();
+            scanner.nextLine();
+            project.setMargeBeneficiaire(marginRate);
+            totalCost=totalCost+(totalCost*marginRate/100);
+        }
+
+        projectService.updateMarginAndTotalCost_Project(projectId, project.getMargeBeneficiaire(), totalCost);
+
+
+        System.out.println("\n--- Calculation Result ---");
+        System.out.println("Project Name: " + project.getNomProject());
+        System.out.println("Client: " + project.getUser().getNom());
+        System.out.println("Address: " + project.getUser().getAddress());
+        System.out.println("--- Cost Details ---");
+        System.out.println("Materials Cost Before VAT: " + String.format("%.2f", totalMaterialBeforeVat) + " €");
+        System.out.println("Materials Cost After VAT: " + String.format("%.2f", totalMaterialAfterVat) + " €");
+        System.out.println("Labors Cost Before VAT: " + String.format("%.2f", totalLaborsBeforeVat) + " €");
+        System.out.println("Labors Cost After VAT: " + String.format("%.2f", totalLaborsAfterVat) + " €");
+        System.out.println("Total Cost Before Margin: " + String.format("%.2f", totalCostBeforeMargin) + " €");
+
+
+        if (project.getUser().isEstProfessional()) {
+            System.out.println("\n--- Professional Client Discount Applied ---");
+            totalCost *= discount;
+            System.out.println("Discounted Total Cost: " + String.format("%.2f", totalCost) + " €");
+        }
+
+        System.out.println("\nEnter issue date (yyyy-MM-dd): ");
+        String issue_Date = scanner.nextLine();
+        LocalDate issueDate = LocalDate.parse(issue_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        System.out.println("\n Enter validated date (yyyy-MM-dd): ");
+        String validated_Date = scanner.nextLine();
+        LocalDate validatedDate = LocalDate.parse(validated_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        while(validatedDate.isBefore(issueDate)){
+            System.out.println("\nEnter the end date (yyyy-MM-dd): After = "+ issueDate);
+            validated_Date = scanner.nextLine();
+            validatedDate = LocalDate.parse(validated_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
+
+        Devi devis = new Devi(0, totalCost, issueDate, false,validatedDate, project.getId());
+        deviService.save(devis);
+
+
+        System.out.print("Do you want to accept the devis? (Yes/No): ");
+        String choice = scanner.nextLine().trim().toLowerCase();
+
+        switch (choice) {
+            case "yes":
+            case "y":
+                deviService.updateDevisStatus(devis.getId());
+                projectService.updateStatus(projectId, EtatProject.TERMINE.name());
+                System.out.println("Devis accepted. Project marked as FINISHED.");
+                break;
+            case "no":
+            case "n":
+                projectService.updateStatus(projectId, EtatProject.ANNULE.name());
+                System.out.println("Devis rejected. Project marked as CANCELLED.");
+                break;
+            default:
+                System.out.println("Invalid choice. Please enter 'Yes' or 'No'.");
+        }
+//        try {
+//            devisMenu.findDevisByProject(projectId);
+//        } catch (QuotesNotFoundException devisNotFoundException) {
+//            System.out.println(devisNotFoundException.getMessage());
+//        }
     }
 
     // Afficher le menu principal
@@ -172,15 +286,6 @@ public class CrudProjectMenu {
         return utilisateurRecupere;
     }
 
-    private  void calculerCoutProjet() {
-        System.out.println("\n--- Calcul du Coût d'un Projet ---");
-        // Logique pour calculer le coût
-        System.out.print("Entrez l'ID du projet : ");
-        int idProjet = scanner.nextInt();
-        scanner.nextLine(); // Consommer la nouvelle ligne
-
-        System.out.println("Le coût estimé pour le projet avec ID " + idProjet + " est de 15 000 €.");
-    }
 
     private  void quitter() {
         System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
@@ -347,8 +452,13 @@ public class CrudProjectMenu {
         if (reponse.equalsIgnoreCase("y")) {
             ajouterMainOeuvre(project); // Récursion pour ajouter un autre type
         }
-    }
 
 
 
+
+
+
+
+
+}
 }

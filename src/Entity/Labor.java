@@ -62,5 +62,9 @@ public class Labor  extends Composants {
         this.project = project;
     }
 
-
+    public Double calculateTotalCost() {
+        Double costBeforeTax =  tauxHoraire * heuresTravail * productuvuteOuvrier;
+        Double costWithTax = costBeforeTax * (1 + (getTauxTva() / 100));
+        return costWithTax;
+    }
 }

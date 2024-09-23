@@ -5,6 +5,8 @@ import Entity.Material;
 import Repository.Interface.LaborRepositoryInter;
 import Service.Interface.LaborServiceInter;
 
+import java.util.List;
+
 public class LaborService implements LaborServiceInter {
     private LaborRepositoryInter laborRepository;
 
@@ -15,6 +17,10 @@ public class LaborService implements LaborServiceInter {
     @Override
     public void addLabor(Labor labor) {
         laborRepository.addLabor(labor);
+    }
+
+    public List<Labor> findAllLaborsByProject(int projectId){
+        return laborRepository.findAllLaborsByProject(projectId);
     }
 
 

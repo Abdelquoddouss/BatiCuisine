@@ -41,9 +41,9 @@ public class LaborRepository implements LaborRepositoryInter {
     // Méthode pour récupérer tous les travaux associés à un projet
     public List<Labor> findAllLaborsByProject(int projectId) {
         List<Labor> workforces = new ArrayList<>();
-        String sql = "SELECT l.id, l.tauxHoraire, l.heuresTravail, l.productuvuteOuvrier, " +
-                "l.nom, l.taux_tva, l.project_id, l.type_composant " +
-                "FROM labors l WHERE l.project_id = ?";
+        String sql = "SELECT l.id, l.tauxHoraire, l.heuresTravail, l.productuviteouvrier, " +
+                "l.nom, l.tauxtva, l.project_id, l.typecomposant " +
+                "FROM labor l WHERE l.project_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, projectId);
@@ -55,12 +55,12 @@ public class LaborRepository implements LaborRepositoryInter {
 
                 Labor labor = new Labor(
                         resultSet.getString("nom"),
-                        resultSet.getString("type_composant"),
-                        resultSet.getDouble("taux_tva"),
+                        resultSet.getString("typecomposant"),
+                        resultSet.getDouble("tauxtva"),
                         resultSet.getDouble("heuresTravail"),
                         resultSet.getInt("id"),
-                        resultSet.getDouble("tauxHoraire"),
-                        resultSet.getDouble("productuvuteOuvrier")
+                        resultSet.getDouble("tauxhoraire"),
+                        resultSet.getDouble("productuviteouvrier")
                 );
 
                 labor.setProject(project);

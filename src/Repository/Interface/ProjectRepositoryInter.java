@@ -14,5 +14,7 @@ public interface ProjectRepositoryInter {
     void updateProject(Project project);
     void deleteProject(int id);
     List<Project> getProjectsByUserId(int userId);
+    void updateMarginAndTotalCost_Project(int id, double marginProfit, double totalCost);
+    boolean updateStatus(int id, String status);
 
 }

@@ -69,4 +69,10 @@ public class Material extends Composants {
         this.project = project;
     }
 
+    public Double calculateTotalCost() {
+        Double costBeforeTax = (coutUnitaire * quantite * coefficientQualite) + coutTransport;
+        Double costWithTax = costBeforeTax * (1 + (getTauxTva() / 100));
+        return costWithTax;
+    }
+
 }

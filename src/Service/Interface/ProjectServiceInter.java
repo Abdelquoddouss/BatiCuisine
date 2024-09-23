@@ -13,5 +13,5 @@ public interface ProjectServiceInter {
     void updateProject(Project project);
     void deleteProject(int id);
     List<Project> getProjectsByUserId(int userId);
-
+    void updateMarginAndTotalCost_Project(int projectId,double marginProfit, double totalCost);
 }

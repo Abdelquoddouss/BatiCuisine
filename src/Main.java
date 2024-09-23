@@ -1,17 +1,11 @@
+import Repository.*;
 import Repository.Interface.LaborRepositoryInter;
 import Repository.Interface.MaterialRepsitoryInter;
 import Repository.Interface.ProjectRepositoryInter;
 import Repository.Interface.UserRepositoryInter;
-import Repository.LaborRepository;
-import Repository.MaterialRepository;
-import Repository.ProjectRepository;
-import Repository.UserRepository;
+import Service.*;
 import Service.Interface.LaborServiceInter;
 import Service.Interface.UserServiceInter;
-import Service.LaborService;
-import Service.MaterialService;
-import Service.ProjectService;
-import Service.UserService;
 import Ui.CrudProjectMenu;
 import config.DatabaseConnection;
 
@@ -29,15 +23,18 @@ public class Main {
         ProjectRepositoryInter projectRepository = new ProjectRepository(DatabaseConnection.getConnection(), userRepository);
         MaterialRepsitoryInter materialRepository = new MaterialRepository(DatabaseConnection.getConnection());
         LaborRepositoryInter laborRepository = new LaborRepository(DatabaseConnection.getConnection());
-
+        DeviRepository deviRepository = new DeviRepository(DatabaseConnection.getConnection());
         // Initialisation des services
         UserServiceInter userService = new UserService(userRepository);
         ProjectService projectService = new ProjectService(projectRepository);
         MaterialService materialService = new MaterialService(materialRepository);
         LaborServiceInter laborService = new LaborService(laborRepository);
+        DeviService deviService = new DeviService(deviRepository);
+
+
 
         // Création du menu avec tous les services
-        CrudProjectMenu projectMenu = new CrudProjectMenu(userService, projectService, materialService, laborService, scanner);
+        CrudProjectMenu projectMenu = new CrudProjectMenu(userService, projectService, materialService, laborService, scanner, deviService);
         projectMenu.afficherMenu();
     }
 }

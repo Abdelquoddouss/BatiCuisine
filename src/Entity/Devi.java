@@ -1,6 +1,7 @@
 package Entity;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Devi {
     private int id;
@@ -70,6 +71,19 @@ public class Devi {
         this.project_id = project_id;
     }
 
+    @Override
+    public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dateEmissionFormatted = dateEmission != null ? dateEmission.format(formatter) : "N/A";
+        String dateValidationFormatted = dateValidate != null ? dateValidate.format(formatter) : "N/A";
+        String accepteStr = accepte ? "Accepté" : "Non accepté";
 
+        return "Devis #" + id + "\n" +
+                "Montant estimé : " + montantEstime + " EUR\n" +
+                "Date d'émission : " + dateEmissionFormatted + "\n" +
+                "Statut : " + accepteStr + "\n" +
+                "Date de validation : " + dateValidationFormatted + "\n" +
+                "ID du projet : " + project_id;
+    }
 
 }

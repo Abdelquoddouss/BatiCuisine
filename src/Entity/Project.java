@@ -40,7 +40,9 @@ public class Project {
         this.user = user;
         this.composants = new ArrayList<>();
     }
-
+    public Project(int id){
+        this.id=id;
+    }
 
     public int getId() {
         return id;

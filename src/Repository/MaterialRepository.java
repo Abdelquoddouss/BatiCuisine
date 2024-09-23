@@ -39,9 +39,7 @@ public class MaterialRepository implements MaterialRepsitoryInter {
     // Méthode pour récupérer tous les matériaux associés à un projet
     public List<Material> findAllMaterialsByProject(int projectId) {
         List<Material> materials = new ArrayList<>();
-        String sql = "SELECT m.id, m.coutUnitaire, m.quantite, m.coutTransport, m.coefficientQualite, " +
-                "m.nom, m.taux_tva, m.project_id, m.typeComposant " +
-                "FROM materials m WHERE m.project_id = ?";
+        String sql = "SELECT * FROM materials WHERE project_id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, projectId);
@@ -54,12 +52,12 @@ public class MaterialRepository implements MaterialRepsitoryInter {
                 Material material = new Material(
                         resultSet.getString("nom"),
                         resultSet.getString("typeComposant"),
-                        resultSet.getDouble("taux_tva"),
+                        resultSet.getDouble("tauxtva"),
                         resultSet.getInt("id"),
                         resultSet.getInt("quantite"),
-                        resultSet.getDouble("coutUnitaire"),
-                        resultSet.getDouble("coutTransport"),
-                        resultSet.getDouble("coefficientQualite")
+                        resultSet.getDouble("coutunitaire"),
+                        resultSet.getDouble("couttransport"),
+                        resultSet.getDouble("coefficientqualite")
                 );
 
                 material.setProject(project);

@@ -174,7 +174,36 @@ public class ProjectRepository implements ProjectRepositoryInter {
         }
         return projects;
     }
-
+    public void updateMarginAndTotalCost_Project(int id, double marginProfit, double totalCost) {
+        String sql = "UPDATE projects SET margebeneficiaire =? , coutotal = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setDouble(1, marginProfit);
+            preparedStatement.setDouble(2, totalCost);
+            preparedStatement.setInt(3, id);
+            int result = preparedStatement.executeUpdate();
+            if (result == 1) {
+                System.out.println("Project updated successfully");
+            } else {
+                System.out.println("Update failed, project not found");
+            }
+        } catch (SQLException sqlException) {
+            System.out.println(sqlException.getMessage());
+        }
+    }
+    public boolean updateStatus(int id, String status) {
+        String sql = "UPDATE projects SET etatproject = ?::etatproject  WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, status);
+            preparedStatement.setInt(2, id);
+            int result = preparedStatement.executeUpdate();
+            if (result == 1) {
+                return true;
+            }
+        } catch (SQLException sqlException) {
+            System.out.println(sqlException.getMessage());
+        }
+        return false;
+    }
 }
 
 

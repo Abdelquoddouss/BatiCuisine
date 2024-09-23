@@ -4,6 +4,8 @@ import Entity.Material;
 import Repository.Interface.MaterialRepsitoryInter;
 import Repository.MaterialRepository;
 
+import java.util.List;
+
 public class MaterialService implements Service.Interface.MaterialServiceInter {
 
     private MaterialRepsitoryInter materialRepository;
@@ -14,6 +16,10 @@ public class MaterialService implements Service.Interface.MaterialServiceInter {
 
     public void addMaterial(Material material) {
         materialRepository.creerMaterial(material);
+    }
+
+    public List<Material> findAllMaterialsByProject(int projectId){
+        return materialRepository.findAllMaterialsByProject(projectId);
     }
 
 
