@@ -6,6 +6,8 @@ public class Labor  extends Composants {
     private double tauxHoraire;
     private double heuresTravail;
     private double productuvuteOuvrier;
+    private Project project;
+
 
     public Labor() {
     }
@@ -50,5 +52,13 @@ public class Labor  extends Composants {
 
     public void setProductuvuteOuvrier(double productuvuteOuvrier) {
         this.productuvuteOuvrier = productuvuteOuvrier;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

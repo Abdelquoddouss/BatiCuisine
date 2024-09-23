@@ -17,7 +17,7 @@ public class LaborRepository implements LaborRepositoryInter {
 
     @Override
     public void addLabor(Labor labor) {
-        String sql = "INSERT INTO Labor (nom, typeComposant, tauxTva, tauxHoraire, heuresTravail, productuviteOuvrier) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Labor (nom, typeComposant, tauxTva, tauxHoraire, heuresTravail, productuviteOuvrier, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, labor.getNom());
             stmt.setString(2, labor.getTypeComposant());
@@ -25,6 +25,8 @@ public class LaborRepository implements LaborRepositoryInter {
             stmt.setDouble(4, labor.getTauxHoraire());
             stmt.setDouble(5, labor.getHeuresTravail());
             stmt.setDouble(6, labor.getProductuvuteOuvrier());
+            stmt.setInt(7, labor.getProject().getId());
+            System.out.println(labor.getProject().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

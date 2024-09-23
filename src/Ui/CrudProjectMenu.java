@@ -62,10 +62,7 @@ public class CrudProjectMenu {
                 case 4:
                     quitter();
                     break;
-                case 5:
-                    ajouterMainOeuvre();
 
-                    break;
                 default:
                     System.out.println("\nChoix invalide ! Veuillez réessayer.");
             }
@@ -141,7 +138,7 @@ public class CrudProjectMenu {
 
             switch (choixAjout) {
                 case 1:
-                    ajouterMainOeuvre();
+                    ajouterMainOeuvre(savedProject);
                     break;
                 case 2:
                     ajouterMateriaux(savedProject);
@@ -155,7 +152,6 @@ public class CrudProjectMenu {
             }
         }
     }
-
 
     private  User rechercherClientExistant() {
         System.out.println("\n--- Recherche de client existant ---");
@@ -176,8 +172,6 @@ public class CrudProjectMenu {
         return utilisateurRecupere;
     }
 
-
-    // Calculer le coût d'un projet
     private  void calculerCoutProjet() {
         System.out.println("\n--- Calcul du Coût d'un Projet ---");
         // Logique pour calculer le coût
@@ -188,7 +182,6 @@ public class CrudProjectMenu {
         System.out.println("Le coût estimé pour le projet avec ID " + idProjet + " est de 15 000 €.");
     }
 
-    // Quitter le programme
     private  void quitter() {
         System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
     }
@@ -231,16 +224,6 @@ public class CrudProjectMenu {
 
             double tauxTva = 0;
             boolean validInput = false;
-            while (!validInput) {
-                try {
-                    System.out.print("Entrez la TVA applicable (%) : ");
-                    tauxTva = scanner.nextDouble();
-                    validInput = true;
-                } catch (InputMismatchException e) {
-                    System.out.println("Erreur : veuillez entrer un nombre valide pour la TVA.");
-                    scanner.next(); // Nettoyer l'entrée incorrecte
-                }
-            }
 
             int quantite = 0;
             validInput = false;
@@ -297,7 +280,7 @@ public class CrudProjectMenu {
             scanner.nextLine();
 
             // Créer et ajouter le matériau
-            Material material = new Material(nom, typeComposant, tauxTva, 0, quantite, coutUnitaire, coutTransport, coefficientQualite);
+            Material material = new Material(nom, typeComposant, 0, 0, quantite, coutUnitaire, coutTransport, coefficientQualite);
             material.setProject(projet);
             materialService.addMaterial(material);
             System.out.println("Matériau ajouté avec succès pour le projet " + projet.getNomProject() + " !");
@@ -310,7 +293,7 @@ public class CrudProjectMenu {
         }
     }
 
-    public void ajouterMainOeuvre() {
+    public void ajouterMainOeuvre(Project project) {
         System.out.println("\n--- Ajout de la main-d'œuvre ---");
 
         System.out.print("Entrez le type de main-d'œuvre (e.g., Ouvrier de base, Spécialiste) : ");
@@ -354,17 +337,17 @@ public class CrudProjectMenu {
 
         // Créer et ajouter la main-d'œuvre
         Labor labor = new Labor(type, "Main-d'œuvre", 0, heuresTravail, 0, tauxHoraire, productuviteOuvrier);
+        labor.setProject(project);
         laborService.addLabor(labor);
 
         System.out.println("Main-d'œuvre ajoutée avec succès !");
 
         System.out.print("Voulez-vous ajouter un autre type de main-d'œuvre ? (y/n) : ");
-        String reponse = scanner.next();
+        String reponse = scanner.nextLine();
         if (reponse.equalsIgnoreCase("y")) {
-            ajouterMainOeuvre(); // Récursion pour ajouter un autre type
+            ajouterMainOeuvre(project); // Récursion pour ajouter un autre type
         }
     }
-
 
 
 
