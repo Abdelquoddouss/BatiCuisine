@@ -352,11 +352,9 @@ public class CrudProjectMenu {
         return utilisateurRecupere;
     }
 
-
     private  void quitter() {
         System.out.println(ANSI_YELLOW + "--- Fin du projet ---" + ANSI_RESET);
     }
-
 
     public void ajouterMateriaux(Project projet) {
         boolean continuer = true;
