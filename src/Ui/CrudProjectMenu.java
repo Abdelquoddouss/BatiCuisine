@@ -225,10 +225,10 @@ public class CrudProjectMenu {
         System.out.println(ANSI_BLUE + "=== Menu Principal ===" + ANSI_RESET);
         System.out.println(ANSI_BLUE + "==========================" + ANSI_RESET);
 
-        System.out.println(ANSI_GREEN + "1. Créer un nouveau projet 🆕" + ANSI_RESET);
-        System.out.println(ANSI_GREEN + "2. Afficher les projets existants 📁" + ANSI_RESET);
-        System.out.println(ANSI_GREEN + "3. Calculer le coût d'un projet 💰" + ANSI_RESET);
-        System.out.println(ANSI_GREEN + "4. Quitter ❌" + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "1. Créer un nouveau projet " + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "2. Afficher les projets existants " + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "3. Calculer le coût d'un projet " + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "4. Quitter " + ANSI_RESET);
 
         System.out.println(ANSI_BLUE + "==========================" + ANSI_RESET);
         System.out.print("Votre choix: ");
@@ -263,8 +263,8 @@ public class CrudProjectMenu {
         User client = null;
 
         System.out.println(ANSI_YELLOW + "\n--- Recherche de client ---" + ANSI_RESET);
-        System.out.println("1. Chercher un client existant 📇");
-        System.out.println("2. Ajouter un nouveau client ✏️");
+        System.out.println("1. Chercher un client existant ");
+        System.out.println("2. Ajouter un nouveau client ");
         System.out.print("Choisissez une option : ");
 
         int choixClient = scanner.nextInt();
@@ -308,9 +308,9 @@ public class CrudProjectMenu {
         boolean continuerAjout = true;
         while (continuerAjout) {
             System.out.println(ANSI_YELLOW + "\nQue souhaitez-vous ajouter au projet ?" + ANSI_RESET);
-            System.out.println("1. Ajouter de la main-d'œuvre 👷‍♂️");
-            System.out.println("2. Ajouter des matériaux 🧱");
-            System.out.println("3. Terminer ✅");
+            System.out.println("1. Ajouter de la main-doeuvre ?");
+            System.out.println("2. Ajouter des matériaux ");
+            System.out.println("3. Terminer ");
             System.out.print("Choisissez une option : ");
 
             int choixAjout = scanner.nextInt();
