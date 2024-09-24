@@ -32,7 +32,6 @@ public class Main {
         DeviService deviService = new DeviService(deviRepository);
 
 
-
         // Création du menu avec tous les services
         CrudProjectMenu projectMenu = new CrudProjectMenu(userService, projectService, materialService, laborService, scanner, deviService);
         projectMenu.afficherMenu();

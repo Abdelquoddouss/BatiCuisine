@@ -56,20 +56,6 @@ public class CrudUserMenu {
         }
     }
 
-    private static void afficherMenuPrincipal(Scanner scanner) {
-        System.out.println("\n=============================");
-        System.out.println("=== Menu CRUD Utilisateur ===");
-        System.out.println("=============================");
-        System.out.println("1. Ajouter un utilisateur");
-        System.out.println("2. Voir un utilisateur");
-        System.out.println("3. Mettre à jour un utilisateur");
-        System.out.println("4. Supprimer un utilisateur");
-        System.out.println("5. Lister tous les utilisateurs");
-        System.out.println("0. Quitter");
-        System.out.println("=============================");
-        System.out.print("Entrez votre choix : ");
-    }
-
     // Méthode pour ajouter un utilisateur
     private static void ajouterUtilisateur(Scanner scanner) {
         System.out.println("\n--- Ajouter un utilisateur ---");
@@ -84,6 +70,20 @@ public class CrudUserMenu {
         User user = new User(0, nom, adresse, telephone, estProfessional);
         userService.addUser(user);
         System.out.println("Utilisateur ajouté avec succès !");
+    }
+
+    private static void afficherMenuPrincipal(Scanner scanner) {
+        System.out.println("\n=============================");
+        System.out.println("=== Menu CRUD Utilisateur ===");
+        System.out.println("=============================");
+        System.out.println("1. Ajouter un utilisateur");
+        System.out.println("2. Voir un utilisateur");
+        System.out.println("3. Mettre à jour un utilisateur");
+        System.out.println("4. Supprimer un utilisateur");
+        System.out.println("5. Lister tous les utilisateurs");
+        System.out.println("0. Quitter");
+        System.out.println("=============================");
+        System.out.print("Entrez votre choix : ");
     }
 
     // Méthode pour voir un utilisateur

@@ -11,9 +11,12 @@ import config.DatabaseConnection;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+
+
 
 public class CrudProjectMenu {
 
@@ -24,6 +27,14 @@ public class CrudProjectMenu {
     private DeviService deviService;
     private Scanner scanner;
     private double discount = 0.9;
+
+    // ANSI color codes for terminal output
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_CYAN = "\u001B[36m";
 
     public CrudProjectMenu(UserServiceInter userService, ProjectService projectService, MaterialService materialService, LaborServiceInter laborService, Scanner scanner,DeviService deviService) {
         this.userService = userService;
@@ -42,7 +53,7 @@ public class CrudProjectMenu {
                 choix = scanner.nextInt();
                 scanner.nextLine(); // Consomme la nouvelle ligne
             } catch (InputMismatchException e) {
-                System.out.println("\n[Erreur] Veuillez entrer un chiffre valide.");
+                System.out.println(ANSI_RED + "\n[Erreur] Veuillez entrer un chiffre valide." + ANSI_RESET);
                 scanner.next(); // Consomme l'entrée incorrecte
                 continue;
             }
@@ -62,7 +73,7 @@ public class CrudProjectMenu {
                     break;
 
                 default:
-                    System.out.println("\nChoix invalide ! Veuillez réessayer.");
+                    System.out.println(ANSI_RED + "\nChoix invalide ! Veuillez réessayer." + ANSI_RESET);
             }
         }
     }
@@ -70,11 +81,12 @@ public class CrudProjectMenu {
     private boolean getYesNoInput(String prompt) {
         System.out.print(prompt);
         String input = scanner.next().trim().toLowerCase();
+        scanner.nextLine(); // Consomme la nouvelle ligne
         return input.equals("y") || input.equals("yes");
     }
 
-    public void calculerCoutProjet() {
-        System.out.println("--- Total Cost Calculation ---");
+    public void calculerCoutProjet()    {
+        System.out.println(ANSI_YELLOW + "--- Total Cost Calculation ---" + ANSI_RESET);
 
         System.out.print("Enter project ID: ");
         int projectId = scanner.nextInt();
@@ -117,16 +129,23 @@ public class CrudProjectMenu {
             scanner.nextLine();
             project.setMargeBeneficiaire(marginRate);
             totalCost=totalCost+(totalCost*marginRate/100);
+
+            if (marginRate >= 0) {
+                project.setMargeBeneficiaire(marginRate);
+                totalCost = totalCost + (totalCost * marginRate / 100);
+            } else {
+                System.out.println("Invalid margin percentage, please enter a non-negative value.");
+            }
         }
 
         projectService.updateMarginAndTotalCost_Project(projectId, project.getMargeBeneficiaire(), totalCost);
 
 
-        System.out.println("\n--- Calculation Result ---");
+        System.out.println(ANSI_YELLOW + "\n--- Calculation Result ---" + ANSI_RESET);
         System.out.println("Project Name: " + project.getNomProject());
         System.out.println("Client: " + project.getUser().getNom());
         System.out.println("Address: " + project.getUser().getAddress());
-        System.out.println("--- Cost Details ---");
+        System.out.println(ANSI_CYAN + "--- Cost Details ---" + ANSI_RESET);
         System.out.println("Materials Cost Before VAT: " + String.format("%.2f", totalMaterialBeforeVat) + " €");
         System.out.println("Materials Cost After VAT: " + String.format("%.2f", totalMaterialAfterVat) + " €");
         System.out.println("Labors Cost Before VAT: " + String.format("%.2f", totalLaborsBeforeVat) + " €");
@@ -135,23 +154,44 @@ public class CrudProjectMenu {
 
 
         if (project.getUser().isEstProfessional()) {
-            System.out.println("\n--- Professional Client Discount Applied ---");
+            System.out.println(ANSI_GREEN + "\n--- Professional Client Discount Applied ---" + ANSI_RESET);
             totalCost *= discount;
             System.out.println("Discounted Total Cost: " + String.format("%.2f", totalCost) + " €");
         }
 
         System.out.println("\nEnter issue date (yyyy-MM-dd): ");
-        String issue_Date = scanner.nextLine();
-        LocalDate issueDate = LocalDate.parse(issue_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate issueDate = null;
 
-        System.out.println("\n Enter validated date (yyyy-MM-dd): ");
-        String validated_Date = scanner.nextLine();
-        LocalDate validatedDate = LocalDate.parse(validated_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        while(validatedDate.isBefore(issueDate)){
-            System.out.println("\nEnter the end date (yyyy-MM-dd): After = "+ issueDate);
-            validated_Date = scanner.nextLine();
-            validatedDate = LocalDate.parse(validated_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        while (issueDate == null) {
+            String issue_Date = scanner.nextLine().trim();
+            try {
+                issueDate = LocalDate.parse(issue_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e) {
+                System.out.println(ANSI_RED + "Invalid date format. Please enter a valid date in the format yyyy-MM-dd." + ANSI_RESET);
+                System.out.println("\nEnter issue date (yyyy-MM-dd): ");
+            }
         }
+
+
+        // Validation de la date de validation
+        LocalDate validatedDate = null;
+        while (validatedDate == null || validatedDate.isBefore(issueDate)) {
+            System.out.println("\n Enter validated date (yyyy-MM-dd): ");
+            String validated_Date = scanner.nextLine().trim();
+            try {
+                validatedDate = LocalDate.parse(validated_Date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                if (validatedDate.isBefore(issueDate)) {
+                    System.out.println(ANSI_RED + "The validated date must be after the issue date (" + issueDate + ")." + ANSI_RESET);
+                    validatedDate = null;  // Reset to force another input
+                }
+            } catch (DateTimeParseException e) {
+                System.out.println(ANSI_RED + "Invalid date format. Please enter a valid date in the format yyyy-MM-dd." + ANSI_RESET);
+            }
+        }
+
+
+            afficherDetailsDevis(project, totalMaterialBeforeVat, totalMaterialAfterVat, totalLaborsBeforeVat, totalLaborsAfterVat, totalCostBeforeMargin, totalCost, project.getUser().isEstProfessional(), issueDate, validatedDate);
 
 
         Devi devis = new Devi(0, totalCost, issueDate, false,validatedDate, project.getId());
@@ -166,41 +206,67 @@ public class CrudProjectMenu {
             case "y":
                 deviService.updateDevisStatus(devis.getId());
                 projectService.updateStatus(projectId, EtatProject.TERMINE.name());
-                System.out.println("Devis accepted. Project marked as FINISHED.");
+                System.out.println(ANSI_GREEN + "Devis accepted. Project marked as FINISHED." + ANSI_RESET);
                 break;
             case "no":
             case "n":
                 projectService.updateStatus(projectId, EtatProject.ANNULE.name());
-                System.out.println("Devis rejected. Project marked as CANCELLED.");
+                System.out.println(ANSI_RED + "Devis rejected. Project marked as CANCELLED." + ANSI_RESET);
                 break;
             default:
-                System.out.println("Invalid choice. Please enter 'Yes' or 'No'.");
+                System.out.println(ANSI_RED + "Invalid choice. Please enter 'Yes' or 'No'." + ANSI_RESET);
         }
-//        try {
-//            devisMenu.findDevisByProject(projectId);
-//        } catch (QuotesNotFoundException devisNotFoundException) {
-//            System.out.println(devisNotFoundException.getMessage());
-//        }
+
     }
 
     // Afficher le menu principal
     private static void afficherMenuPrincipal() {
-        System.out.println("\n=== Menu Principal ===");
-        System.out.println("1. Créer un nouveau projet");
-        System.out.println("2. Afficher les projets existants");
-        System.out.println("5. Ajouter de la main-d'œuvre");
-        System.out.println("3. Calculer le coût d'un projet");
-        System.out.println("4. Quitter");
-        System.out.print("Choisissez une option : ");
+        System.out.println(ANSI_BLUE + "\n==========================" + ANSI_RESET);
+        System.out.println(ANSI_BLUE + "=== Menu Principal ===" + ANSI_RESET);
+        System.out.println(ANSI_BLUE + "==========================" + ANSI_RESET);
+
+        System.out.println(ANSI_GREEN + "1. Créer un nouveau projet 🆕" + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "2. Afficher les projets existants 📁" + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "3. Calculer le coût d'un projet 💰" + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "4. Quitter ❌" + ANSI_RESET);
+
+        System.out.println(ANSI_BLUE + "==========================" + ANSI_RESET);
+        System.out.print("Votre choix: ");
     }
+
+
+    private void afficherProjetsParUtilisateur() {
+        System.out.println(ANSI_YELLOW + "--- Projets Existants ---" + ANSI_RESET);
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Entrez l'ID de l'utilisateur : ");
+        int userId = scanner.nextInt();
+
+        List<Project> projets = projectService.getProjectsByUserId(userId);
+        Project projet= projectService.getProjectById(9);
+        if (projets.isEmpty()) {
+            System.out.println("Aucun projet trouvé pour l'utilisateur avec ID: " + userId);
+        } else {
+            System.out.printf("%-5s %-20s %-20s %-15s %-15s%n", "ID", "nomproject", "coutotal", "etatproject", "client_id");
+            System.out.println("-------------------------------------------------------------------------------");
+            for (Project p : projets) {
+                System.out.printf("%-5d %-20s %-20s %-15s %-15s%n",
+                        p.getId(), p.getNomProject(), p.getCouTotal(), p.getEtatProject(), p.getUser() != null ? p.getUser().getNom() : "Aucun utilisateur"
+                );
+            }
+
+        }
+    }
+
 
     public void creerNouveauProjet() {
         User client = null;
 
-        System.out.println("\n--- Recherche de client ---");
-        System.out.println("1. Chercher un client existant");
-        System.out.println("2. Ajouter un nouveau client");
+        System.out.println(ANSI_YELLOW + "\n--- Recherche de client ---" + ANSI_RESET);
+        System.out.println("1. Chercher un client existant 📇");
+        System.out.println("2. Ajouter un nouveau client ✏️");
         System.out.print("Choisissez une option : ");
+
         int choixClient = scanner.nextInt();
         scanner.nextLine();
 
@@ -215,12 +281,12 @@ public class CrudProjectMenu {
             String clientNom = scanner.nextLine();
             client = userService.getUserByName(clientNom);
         } else {
-            System.out.println("\nChoix invalide. Retour au menu principal.");
+            System.out.println(ANSI_RED + "\nChoix invalide. Retour au menu principal." + ANSI_RESET);
             return;
         }
 
         // Création du projet
-        System.out.println("\n--- Création d'un Nouveau Projet ---");
+        System.out.println(ANSI_YELLOW + "\n--- Création d'un Nouveau Projet ---" + ANSI_RESET);
         System.out.print("Entrez le nom du projet : ");
         String nomProjet = scanner.nextLine();
 
@@ -236,15 +302,15 @@ public class CrudProjectMenu {
         Project nouveauProjet = new Project(nomProjet, margeBeneficiaire, surfaceCuisine, EtatProject.EN_COURS, client);
         Project savedProject = projectService.addProject(nouveauProjet);
 
-        System.out.println("Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !");
+        System.out.println(ANSI_GREEN + "Projet '" + nomProjet + "' pour une surface de " + surfaceCuisine + " m² a été créé et ajouté à la base de données avec succès !" + ANSI_RESET);
 
         // Nouveau menu pour choisir quoi ajouter
         boolean continuerAjout = true;
         while (continuerAjout) {
-            System.out.println("\nQue souhaitez-vous ajouter au projet ?");
-            System.out.println("1. Ajouter de la main-d'œuvre");
-            System.out.println("2. Ajouter des matériaux");
-            System.out.println("3. Terminer");
+            System.out.println(ANSI_YELLOW + "\nQue souhaitez-vous ajouter au projet ?" + ANSI_RESET);
+            System.out.println("1. Ajouter de la main-d'œuvre 👷‍♂️");
+            System.out.println("2. Ajouter des matériaux 🧱");
+            System.out.println("3. Terminer ✅");
             System.out.print("Choisissez une option : ");
 
             int choixAjout = scanner.nextInt();
@@ -259,10 +325,10 @@ public class CrudProjectMenu {
                     break;
                 case 3:
                     continuerAjout = false;
-                    System.out.println("Ajouts terminés pour le projet.");
+                    System.out.println(ANSI_GREEN + "Ajouts terminés pour le projet." + ANSI_RESET);
                     break;
                 default:
-                    System.out.println("Choix invalide. Veuillez réessayer.");
+                    System.out.println(ANSI_RED + "Choix invalide. Veuillez réessayer." + ANSI_RESET);
             }
         }
     }
@@ -288,31 +354,9 @@ public class CrudProjectMenu {
 
 
     private  void quitter() {
-        System.out.println("\nMerci d'avoir utilisé notre service. À bientôt !");
+        System.out.println(ANSI_YELLOW + "--- Fin du projet ---" + ANSI_RESET);
     }
 
-    private void afficherProjetsParUtilisateur() {
-        System.out.println("\n--- Afficher Projets par Utilisateur ---");
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Entrez l'ID de l'utilisateur : ");
-        int userId = scanner.nextInt();
-
-        List<Project> projets = projectService.getProjectsByUserId(userId);
-        Project projet= projectService.getProjectById(9);
-        if (projets.isEmpty()) {
-            System.out.println("Aucun projet trouvé pour l'utilisateur avec ID: " + userId);
-        } else {
-            System.out.printf("%-5s %-20s %-20s %-15s %-15s%n", "ID", "nomproject", "coutotal", "etatproject", "client_id");
-            System.out.println("-------------------------------------------------------------------------------");
-            for (Project p : projets) {
-                System.out.printf("%-5d %-20s %-20s %-15s %-15s%n",
-                        p.getId(), p.getNomProject(), p.getCouTotal(), p.getEtatProject(), p.getUser() != null ? p.getUser().getNom() : "Aucun utilisateur"
-                );
-            }
-
-        }
-    }
 
     public void ajouterMateriaux(Project projet) {
         boolean continuer = true;
@@ -439,6 +483,7 @@ public class CrudProjectMenu {
                 scanner.next();
             }
         }
+        scanner.nextLine();
 
         // Créer et ajouter la main-d'œuvre
         Labor labor = new Labor(type, "Main-d'œuvre", 0, heuresTravail, 0, tauxHoraire, productuviteOuvrier);
@@ -451,6 +496,8 @@ public class CrudProjectMenu {
         String reponse = scanner.nextLine();
         if (reponse.equalsIgnoreCase("y")) {
             ajouterMainOeuvre(project); // Récursion pour ajouter un autre type
+        } else {
+            System.out.println("Ajout de la main-d'œuvre terminé.");
         }
 
 
@@ -461,4 +508,23 @@ public class CrudProjectMenu {
 
 
 }
+
+    private void afficherDetailsDevis(Project project, double totalMaterialBeforeVat, double totalMaterialAfterVat, double totalLaborsBeforeVat, double totalLaborsAfterVat, double totalCostBeforeMargin, double totalCost, boolean isProfessionalClient, LocalDate issueDate, LocalDate validatedDate) {
+        System.out.println(ANSI_YELLOW + "\n--- Devis Détails ---" + ANSI_RESET);
+        System.out.printf("%-20s : %s%n", "Nom du Projet", project.getNomProject());
+        System.out.printf("%-20s : %s%n", "Client", project.getUser().getNom());
+        System.out.printf("%-20s : %s%n", "Adresse", project.getUser().getAddress());
+        System.out.printf("%-20s : %.2f €%n", "Coût Matériaux (HT)", totalMaterialBeforeVat);
+        System.out.printf("%-20s : %.2f €%n", "Coût Matériaux (TTC)", totalMaterialAfterVat);
+        System.out.printf("%-20s : %.2f €%n", "Coût Main d'Oeuvre (HT)", totalLaborsBeforeVat);
+        System.out.printf("%-20s : %.2f €%n", "Coût Main d'Oeuvre (TTC)", totalLaborsAfterVat);
+        System.out.printf("%-20s : %.2f €%n", "Coût Total (HT)", totalCostBeforeMargin);
+        if (isProfessionalClient) {
+            System.out.println(ANSI_GREEN + "\n--- Remise Appliquée ---" + ANSI_RESET);
+            System.out.printf("%-20s : %.2f €%n", "Coût Total (avec remise)", totalCost);
+        }
+        System.out.printf("%-20s : %s%n", "Date d'Émission", issueDate);
+        System.out.printf("%-20s : %s%n", "Date Validée", validatedDate);
+    }
+
 }

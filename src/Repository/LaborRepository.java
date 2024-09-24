@@ -30,7 +30,6 @@ public class LaborRepository implements LaborRepositoryInter {
             stmt.setDouble(5, labor.getHeuresTravail());
             stmt.setDouble(6, labor.getProductuvuteOuvrier());
             stmt.setInt(7, labor.getProject().getId());
-            System.out.println(labor.getProject().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
