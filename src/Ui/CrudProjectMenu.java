@@ -99,6 +99,7 @@ public class CrudProjectMenu {
         double totalMaterialBeforeVat = 0;
         double totalMaterialAfterVat = 0;
 
+
         for (Material material : materials) {
             double materialCostBeforeVat = materialService.calculateMaterialBeforeVatRate(material);
             double materialCostAfterVat = materialService.calculateMaterialAfterVatRate(material);

@@ -16,8 +16,19 @@ public class DatabaseConnection {
             synchronized (DatabaseConnection.class) {
                 if (connection == null) {
                     try {
-                        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/BatiCuisine", "BatiCuisine", "");
+                        // Charger le driver manuellement
+                        Class.forName("org.postgresql.Driver");
+
+                        // Établir la connexion
+                        connection = DriverManager.getConnection(
+                                "jdbc:postgresql://localhost:5432/BatiCuisine",
+                                "BatiCuisine",
+                                "your_password"
+                        );
                     } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        System.out.println("Le driver PostgreSQL n'a pas pu être chargé.");
                         e.printStackTrace();
                     }
                 }

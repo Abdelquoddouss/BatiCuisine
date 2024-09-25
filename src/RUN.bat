@@ -1,1 +1,1 @@
-java -jar baticuisine.jar
+java     -jar baticuisine.jar

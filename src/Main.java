@@ -1,3 +1,6 @@
+import Entity.Devi;
+import Entity.Project;
+import Entity.enums.EtatProject;
 import Repository.*;
 import Repository.Interface.LaborRepositoryInter;
 import Repository.Interface.MaterialRepsitoryInter;
@@ -10,11 +13,17 @@ import Ui.CrudProjectMenu;
 import config.DatabaseConnection;
 
 import java.sql.Connection;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -35,5 +44,9 @@ public class Main {
         // Création du menu avec tous les services
         CrudProjectMenu projectMenu = new CrudProjectMenu(userService, projectService, materialService, laborService, scanner, deviService);
         projectMenu.afficherMenu();
+
+
+
+
     }
 }

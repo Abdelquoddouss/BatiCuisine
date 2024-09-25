@@ -3,13 +3,15 @@ package Repository;
 import Entity.Devi;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DeviRepository {
 
     public Connection connection;
 
     public DeviRepository(Connection connection) {
-        this.connection = connection;
+        this.connection = this.connection;
     }
 
 
@@ -47,5 +49,29 @@ public class DeviRepository {
             System.out.println(sqlException.getMessage());
         }
         return false;
+    }
+
+
+    public List<Devi> findAll() {
+        List<Devi> devisList = new ArrayList<>();
+        String query = "SELECT * FROM devis";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Devi devis = new Devi();
+                devis.setId(resultSet.getInt("id"));
+                devis.setMontantEstime(resultSet.getDouble("montantestime"));
+                devis.setDateEmission(resultSet.getDate("dateemission").toLocalDate());
+                devis.setDateValidate(resultSet.getDate("datevalidate").toLocalDate());
+                devis.setProject_id(resultSet.getInt("project_id"));
+                devis.setAccepte(resultSet.getBoolean("accepte"));
+
+                devisList.add(devis);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching all devis: " + e.getMessage());
+        }
+        return devisList;
     }
 }
