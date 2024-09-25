@@ -67,7 +67,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/khalid-oukha/bati-cuisine.git
+   git clone https://github.com/Abdelquoddouss/BatiCuisine.git
 
 
 ### dataBase script
@@ -102,22 +102,20 @@ vatRate DOUBLE PRECISION,
 project_id INTEGER REFERENCES projects (id) ON DELETE cascade ON UPDATE CASCADE
 );
 
-CREATE TABLE labor
-(
-id INTEGER PRIMARY KEY REFERENCES component (id),
-hourlyRate DOUBLE PRECISION,
-workingHours DOUBLE PRECISION,
-workerProductivity DOUBLE PRECISION
-);
+CREATE TABLE Materials (
+                           coutUnitaire DOUBLE PRECISION,
+                           quantite DOUBLE PRECISION,
+                           coutTransport DOUBLE PRECISION,
+                           coefficientQualite DOUBLE PRECISION
+) INHERITS (Composants);
 
-CREATE TABLE material
-(
-id INTEGER PRIMARY KEY REFERENCES component (id),
-unitCost DOUBLE PRECISION,
-quantity DOUBLE PRECISION,
-transportCost DOUBLE PRECISION,
-qualityCoefficient DOUBLE PRECISION
-);
+
+CREATE TABLE Labor (
+                       tauxHoraire DOUBLE PRECISION,
+                       heuresTravail DOUBLE PRECISION,
+                       productuviteOuvrier DOUBLE PRECISION
+) INHERITS (Composants);
+
 
 CREATE TABLE quotes
 (
